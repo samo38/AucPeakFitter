@@ -1,21 +1,18 @@
-from MainUi import Ui_MainWindow
-
 from PySide6 import QtWidgets
-from PySide6 import QtCore
-from PySide6 import QtGui
+from main_widget import MainWindow
+from qt_to_py import qt_uic, qt_rcc
 import sys
-
-
-class Window(QtWidgets.QMainWindow, Ui_MainWindow):
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setupUi(self)
-
+import argparse
 
 if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
+    options = argparse.ArgumentParser()
+    options.add_argument('--ui2py', dest='ui2py', help='Convert all UI files', action='store_true', default=False)
+    args = options.parse_args()
+    if args.ui2py:
+        qt_uic()
+        qt_rcc()
 
-    win = Window()
+    app = QtWidgets.QApplication(sys.argv)
+    win = MainWindow()
     win.show()
     sys.exit(app.exec())
