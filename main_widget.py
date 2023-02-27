@@ -56,11 +56,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         scan_id -= 1
         self.scan_id = scan_id
         rpm = self.rpm[scan_id] / 1000
-        self.frm_open.le_rpm.setText(f"{rpm: g} k")
+        self.frm_open.le_rpm.setText(f"{rpm: g}k")
         wave = self.wavelength[scan_id]
         self.frm_open.le_wavl.setText(f"{wave: g}")
         temp = self.temperature[scan_id]
         self.frm_open.le_temp.setText(f"{temp: g}")
+        self.wg_plot.plot_raw(self.x_values, self.y_values[self.scan_id])
 
         # self.frm_open.le_rpm.setText(self.auc_data.rpm)
         # self.frm_open.le_rpm.setText(self.auc_data.temperature)
@@ -70,7 +71,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.frm_list.spin_box.clear()
         self.frm_list.spin_box.setMinimum(1)
         self.frm_list.spin_box.setMaximum(self.n_scans)
-
         self.frm_list.spin_box.valueChanged.connect(self.slt_new_scan)
         self.frm_list.spin_box.setValue(self.n_scans)
 

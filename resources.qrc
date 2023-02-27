@@ -3,6 +3,8 @@
     <file>Resources/Font/Heebo-VariableFont_wght.ttf</file>
   </qresource>
   <qresource prefix="Icon">
+    <file>Resources/Icons/WinLogo.png</file>
+    <file>Resources/Icons/App_t.png</file>
     <file>Resources/Icons/alpha_1.png</file>
     <file>Resources/Icons/alpha_2.png</file>
     <file>Resources/Icons/mu.png</file>
@@ -16,6 +18,5 @@
     <file>Resources/Icons/sprint_FILL0_wght400_GRAD0_opsz48.svg</file>
     <file>Resources/Icons/text_snippet_FILL0_wght400_GRAD0_opsz48.svg</file>
     <file>Resources/Icons/tune_FILL0_wght400_GRAD0_opsz48.svg</file>
-    <file>Resources/Icons/wave_packet_bg.png</file>
   </qresource>
 </RCC>

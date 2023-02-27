@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>643</width>
-    <height>88</height>
+    <width>774</width>
+    <height>80</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -88,20 +88,32 @@ font-weight: normal;
       <property name="bottomMargin">
        <number>0</number>
       </property>
-      <item>
+      <item alignment="Qt::AlignHCenter|Qt::AlignTop">
        <widget class="QLabel" name="lb_logo">
+        <property name="minimumSize">
+         <size>
+          <width>60</width>
+          <height>38</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>60</width>
+          <height>38</height>
+         </size>
+        </property>
         <property name="text">
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="resources.qrc">:/Icon/Resources/Icons/wave_packet_bg.png</pixmap>
+         <pixmap resource="resources.qrc">:/Icon/Resources/Icons/WinLogo.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item>
+      <item alignment="Qt::AlignHCenter|Qt::AlignBottom">
        <widget class="QLabel" name="lb_text">
         <property name="text">
          <string>AUC Peak Decomposition</string>
@@ -141,7 +153,7 @@ font-weight: normal;
       <property name="bottomMargin">
        <number>0</number>
       </property>
-      <item>
+      <item alignment="Qt::AlignLeft">
        <widget class="QFrame" name="frm_1">
         <property name="minimumSize">
          <size>
@@ -161,7 +173,7 @@ font-weight: normal;
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,0,1">
          <property name="spacing">
           <number>0</number>
          </property>
@@ -179,6 +191,12 @@ font-weight: normal;
          </property>
          <item>
           <widget class="QPushButton" name="pb_open">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>130</width>
@@ -218,6 +236,24 @@ font-weight: normal;
          </item>
          <item>
           <widget class="QLabel" name="lb_desc">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>93</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>93</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="font">
             <font>
              <family>all-the-icons</family>
@@ -231,11 +267,32 @@ font-weight: normal;
          </item>
          <item>
           <widget class="QLineEdit" name="le_desc">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>416</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>416</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="font">
             <font>
              <family>Heebo</family>
              <bold>false</bold>
             </font>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
            </property>
            <property name="styleSheet">
             <string notr="true"/>
@@ -286,6 +343,18 @@ font-weight: normal;
          </property>
          <item>
           <widget class="QLabel" name="lb_type">
+           <property name="minimumSize">
+            <size>
+             <width>38</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>38</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="text">
             <string>Type:</string>
            </property>
@@ -293,9 +362,15 @@ font-weight: normal;
          </item>
          <item>
           <widget class="QLineEdit" name="le_type">
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
-             <width>25</width>
+             <width>30</width>
              <height>16777215</height>
             </size>
            </property>
@@ -306,6 +381,18 @@ font-weight: normal;
          </item>
          <item>
           <widget class="QLabel" name="lb_cell">
+           <property name="minimumSize">
+            <size>
+             <width>36</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>36</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="font">
             <font>
              <family>Heebo</family>
@@ -319,9 +406,15 @@ font-weight: normal;
          </item>
          <item>
           <widget class="QLineEdit" name="le_cell">
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
-             <width>25</width>
+             <width>30</width>
              <height>16777215</height>
             </size>
            </property>
@@ -341,6 +434,18 @@ font-weight: normal;
          </item>
          <item>
           <widget class="QLabel" name="lb_chan">
+           <property name="minimumSize">
+            <size>
+             <width>66</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>66</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="text">
             <string> Channel:</string>
            </property>
@@ -348,9 +453,15 @@ font-weight: normal;
          </item>
          <item>
           <widget class="QLineEdit" name="le_chan">
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
-             <width>25</width>
+             <width>30</width>
              <height>16777215</height>
             </size>
            </property>
@@ -361,6 +472,18 @@ font-weight: normal;
          </item>
          <item>
           <widget class="QLabel" name="lb_wavl">
+           <property name="minimumSize">
+            <size>
+             <width>91</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>91</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="text">
             <string> Wavelength:</string>
            </property>
@@ -368,6 +491,12 @@ font-weight: normal;
          </item>
          <item>
           <widget class="QLineEdit" name="le_wavl">
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>60</width>
@@ -381,6 +510,18 @@ font-weight: normal;
          </item>
          <item>
           <widget class="QLabel" name="lb_rpm">
+           <property name="minimumSize">
+            <size>
+             <width>41</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>41</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="font">
             <font>
              <family>Heebo</family>
@@ -394,6 +535,12 @@ font-weight: normal;
          </item>
          <item>
           <widget class="QLineEdit" name="le_rpm">
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>60</width>
@@ -416,6 +563,18 @@ font-weight: normal;
          </item>
          <item>
           <widget class="QLabel" name="lb_temp">
+           <property name="minimumSize">
+            <size>
+             <width>97</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>97</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="font">
             <font>
              <family>Heebo</family>
@@ -429,6 +588,12 @@ font-weight: normal;
          </item>
          <item>
           <widget class="QLineEdit" name="le_temp">
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>60</width>

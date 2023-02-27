@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>AUC Peak Decomposition Program</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="resources.qrc">
+    <normaloff>:/Icon/Resources/Icons/App_t.png</normaloff>:/Icon/Resources/Icons/App_t.png</iconset>
+  </property>
   <property name="styleSheet">
    <string notr="true"/>
   </property>
@@ -96,7 +100,7 @@ background-color: rgb(245,245,245);
         <number>0</number>
        </property>
        <item>
-        <widget class="PlotWidget" name="graphicsView"/>
+        <widget class="PlotWidget" name="wg_plot"/>
        </item>
       </layout>
      </widget>

@@ -27,6 +27,9 @@ class Ui_MainWindow(object):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(779, 551)
+        icon = QIcon()
+        icon.addFile(u":/Icon/Resources/Icons/App_t.png", QSize(), QIcon.Normal, QIcon.Off)
+        MainWindow.setWindowIcon(icon)
         MainWindow.setStyleSheet(u"")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
@@ -72,10 +75,10 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setSpacing(0)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
-        self.graphicsView = PlotWidget(self.frm_plot)
-        self.graphicsView.setObjectName(u"graphicsView")
+        self.wg_plot = PlotWidget(self.frm_plot)
+        self.wg_plot.setObjectName(u"wg_plot")
 
-        self.horizontalLayout.addWidget(self.graphicsView)
+        self.horizontalLayout.addWidget(self.wg_plot)
 
 
         self.gridLayout.addWidget(self.frm_plot, 1, 1, 1, 1)
