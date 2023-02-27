@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>669</width>
+    <width>643</width>
     <height>88</height>
    </rect>
   </property>
@@ -248,7 +248,7 @@ font-weight: normal;
         </layout>
        </widget>
       </item>
-      <item>
+      <item alignment="Qt::AlignLeft">
        <widget class="QFrame" name="frm_2">
         <property name="minimumSize">
          <size>
@@ -293,6 +293,12 @@ font-weight: normal;
          </item>
          <item>
           <widget class="QLineEdit" name="le_type">
+           <property name="maximumSize">
+            <size>
+             <width>25</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="readOnly">
             <bool>true</bool>
            </property>
@@ -313,6 +319,12 @@ font-weight: normal;
          </item>
          <item>
           <widget class="QLineEdit" name="le_cell">
+           <property name="maximumSize">
+            <size>
+             <width>25</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="font">
             <font>
              <family>Heebo</family>
@@ -336,6 +348,12 @@ font-weight: normal;
          </item>
          <item>
           <widget class="QLineEdit" name="le_chan">
+           <property name="maximumSize">
+            <size>
+             <width>25</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="readOnly">
             <bool>true</bool>
            </property>
@@ -350,6 +368,12 @@ font-weight: normal;
          </item>
          <item>
           <widget class="QLineEdit" name="le_wavl">
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="readOnly">
             <bool>true</bool>
            </property>
@@ -370,6 +394,12 @@ font-weight: normal;
          </item>
          <item>
           <widget class="QLineEdit" name="le_rpm">
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="font">
             <font>
              <family>Heebo</family>
@@ -399,6 +429,12 @@ font-weight: normal;
          </item>
          <item>
           <widget class="QLineEdit" name="le_temp">
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="font">
             <font>
              <family>Heebo</family>

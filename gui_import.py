@@ -24,7 +24,7 @@ class Ui_Frame(object):
     def setupUi(self, Frame):
         if not Frame.objectName():
             Frame.setObjectName(u"Frame")
-        Frame.resize(669, 88)
+        Frame.resize(643, 88)
         Frame.setMinimumSize(QSize(0, 80))
         Frame.setMaximumSize(QSize(16777215, 88))
         Frame.setStyleSheet(u"#le_desc, #le_cell, #le_chan, #le_rpm, #le_temp, #le_type, #le_wavl{\n"
@@ -135,6 +135,7 @@ class Ui_Frame(object):
 
         self.le_type = QLineEdit(self.frm_2)
         self.le_type.setObjectName(u"le_type")
+        self.le_type.setMaximumSize(QSize(25, 16777215))
         self.le_type.setReadOnly(True)
 
         self.horizontalLayout_5.addWidget(self.le_type)
@@ -147,6 +148,7 @@ class Ui_Frame(object):
 
         self.le_cell = QLineEdit(self.frm_2)
         self.le_cell.setObjectName(u"le_cell")
+        self.le_cell.setMaximumSize(QSize(25, 16777215))
         self.le_cell.setFont(font)
         self.le_cell.setStyleSheet(u"")
         self.le_cell.setReadOnly(True)
@@ -160,6 +162,7 @@ class Ui_Frame(object):
 
         self.le_chan = QLineEdit(self.frm_2)
         self.le_chan.setObjectName(u"le_chan")
+        self.le_chan.setMaximumSize(QSize(25, 16777215))
         self.le_chan.setReadOnly(True)
 
         self.horizontalLayout_5.addWidget(self.le_chan)
@@ -171,6 +174,7 @@ class Ui_Frame(object):
 
         self.le_wavl = QLineEdit(self.frm_2)
         self.le_wavl.setObjectName(u"le_wavl")
+        self.le_wavl.setMaximumSize(QSize(60, 16777215))
         self.le_wavl.setReadOnly(True)
 
         self.horizontalLayout_5.addWidget(self.le_wavl)
@@ -183,6 +187,7 @@ class Ui_Frame(object):
 
         self.le_rpm = QLineEdit(self.frm_2)
         self.le_rpm.setObjectName(u"le_rpm")
+        self.le_rpm.setMaximumSize(QSize(60, 16777215))
         self.le_rpm.setFont(font)
         self.le_rpm.setStyleSheet(u"")
         self.le_rpm.setReadOnly(True)
@@ -197,6 +202,7 @@ class Ui_Frame(object):
 
         self.le_temp = QLineEdit(self.frm_2)
         self.le_temp.setObjectName(u"le_temp")
+        self.le_temp.setMaximumSize(QSize(60, 16777215))
         self.le_temp.setFont(font)
         self.le_temp.setStyleSheet(u"")
         self.le_temp.setReadOnly(True)
@@ -204,7 +210,7 @@ class Ui_Frame(object):
         self.horizontalLayout_5.addWidget(self.le_temp)
 
 
-        self.verticalLayout_4.addWidget(self.frm_2)
+        self.verticalLayout_4.addWidget(self.frm_2, 0, Qt.AlignLeft)
 
 
         self.horizontalLayout.addWidget(self.frm_open)

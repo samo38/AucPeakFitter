@@ -15,10 +15,11 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QMainWindow,
-    QSizePolicy, QStatusBar, QWidget)
+from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
+    QMainWindow, QSizePolicy, QStatusBar, QWidget)
 
 from embed_widgets import (ImportWidget, SpeciesControl, SpeciesList)
+from plot_widget import PlotWidget
 import resources_rc
 
 class Ui_MainWindow(object):
@@ -41,8 +42,10 @@ class Ui_MainWindow(object):
 "background: none;\n"
 "}\n"
 "#centralwidget{\n"
-"background-color: rgb(246, 243, 235);\n"
-"}")
+"background-color: rgb(245,245,245);\n"
+"}\n"
+"\n"
+"")
         self.gridLayout = QGridLayout(self.centralwidget)
         self.gridLayout.setSpacing(2)
         self.gridLayout.setObjectName(u"gridLayout")
@@ -61,10 +64,21 @@ class Ui_MainWindow(object):
 
         self.gridLayout.addWidget(self.frm_list, 1, 0, 1, 1)
 
-        self.wg_plot = QWidget(self.centralwidget)
-        self.wg_plot.setObjectName(u"wg_plot")
+        self.frm_plot = QFrame(self.centralwidget)
+        self.frm_plot.setObjectName(u"frm_plot")
+        self.frm_plot.setFrameShape(QFrame.StyledPanel)
+        self.frm_plot.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout = QHBoxLayout(self.frm_plot)
+        self.horizontalLayout.setSpacing(0)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.graphicsView = PlotWidget(self.frm_plot)
+        self.graphicsView.setObjectName(u"graphicsView")
 
-        self.gridLayout.addWidget(self.wg_plot, 1, 1, 1, 1)
+        self.horizontalLayout.addWidget(self.graphicsView)
+
+
+        self.gridLayout.addWidget(self.frm_plot, 1, 1, 1, 1)
 
         self.frm_ctrl = SpeciesControl(self.centralwidget)
         self.frm_ctrl.setObjectName(u"frm_ctrl")
