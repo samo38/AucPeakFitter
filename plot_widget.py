@@ -105,24 +105,27 @@ class PlotWidget(pg.GraphicsLayoutWidget):
         self.picker_raw.setZValue(-10)
         self.plot_ru.addItem(self.picker_raw)
 
-        self.picker_raw.sigRegionChanged.connect(self.plot_trim)
+        self.picker_raw.sigRegionChanged.connect(self.update_trim)
 
         # self.picker_reg.sigRegionChanged.connect(self.update_plot)
         # # self.p2.sigXRangeChanged.connect(self.update_region)
 
-
     @Slot()
-    def plot_trim(self):
+    def update_trim(self):
         [min_val, max_val] = self.picker_raw.getRegion()
         ind = np.logical_and(self.x_raw >= min_val, self.x_raw <= max_val)
         self.x_trim = self.x_raw[ind]
         self.y_trim = self.y_raw[ind]
-        self.curve_trim.setData(self.x_trim, self.y_trim)
         # self.p2.setXRange(*self.picker_reg.getRegion(), padding=0)
 
     def plot_raw(self, xvals, yvals):
         self.x_raw = xvals
         self.y_raw = yvals
+        self.x_trim = xvals
+        self
         self.picker_raw.setRegion([np.min(xvals), np.max(xvals)])
         self.curve_raw.setData(xvals, yvals)
         self.plot_trim()
+
+    def plot_trim(self):
+        self.curve_trim.setData(self.x_trim, self.y_trim)

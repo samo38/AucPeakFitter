@@ -1,7 +1,7 @@
 from PySide6 import (QtWidgets, QtCore)
 from PySide6.QtCore import (Slot, Signal)
 from gui_main_window import Ui_MainWindow
-from AucDataIO import AucRawData
+from auc_data_io import AucRawData
 
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):

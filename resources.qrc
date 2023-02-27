@@ -3,12 +3,11 @@
     <file>Resources/Font/Heebo-VariableFont_wght.ttf</file>
   </qresource>
   <qresource prefix="Icon">
+    <file>Resources/Icons/cancel_FILL0_wght400_GRAD0_opsz48.svg</file>
+    <file>Resources/Icons/check_circle_FILL0_wght400_GRAD0_opsz48.svg</file>
+    <file>Resources/Icons/horizontal_distribute_FILL0_wght400_GRAD0_opsz48.svg</file>
     <file>Resources/Icons/WinLogo.png</file>
     <file>Resources/Icons/App_t.png</file>
-    <file>Resources/Icons/alpha_1.png</file>
-    <file>Resources/Icons/alpha_2.png</file>
-    <file>Resources/Icons/mu.png</file>
-    <file>Resources/Icons/sigma.png</file>
     <file>Resources/Icons/visibility_FILL0_wght400_GRAD0_opsz48.svg</file>
     <file>Resources/Icons/visibility_off_FILL0_wght400_GRAD0_opsz48.svg</file>
     <file>Resources/Icons/add_FILL0_wght400_GRAD0_opsz48.svg</file>
