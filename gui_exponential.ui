@@ -76,7 +76,7 @@ font-weight: normal;
          <string>Amplitude (A):</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -93,7 +93,7 @@ font-weight: normal;
          <string>Decay ( τ ):</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -111,6 +111,9 @@ font-weight: normal;
           <height>16777215</height>
          </size>
         </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item row="1" column="3">
@@ -126,6 +129,9 @@ font-weight: normal;
           <width>50</width>
           <height>16777215</height>
          </size>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

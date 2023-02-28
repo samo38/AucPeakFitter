@@ -24,7 +24,7 @@ class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(492, 110)
+        Form.resize(576, 110)
         Form.setMinimumSize(QSize(0, 110))
         Form.setMaximumSize(QSize(16777215, 110))
         self.horizontalLayout = QHBoxLayout(Form)
@@ -48,21 +48,23 @@ class Ui_Form(object):
 
         self.pb_cent_val = QPushButton(self.group)
         self.pb_cent_val.setObjectName(u"pb_cent_val")
-        self.pb_cent_val.setMinimumSize(QSize(35, 0))
-        self.pb_cent_val.setMaximumSize(QSize(35, 16777215))
+        self.pb_cent_val.setMinimumSize(QSize(55, 0))
+        self.pb_cent_val.setMaximumSize(QSize(55, 16777215))
+        self.pb_cent_val.setCheckable(True)
 
         self.gridLayout.addWidget(self.pb_cent_val, 0, 4, 1, 1)
 
         self.label_3 = QLabel(self.group)
         self.label_3.setObjectName(u"label_3")
-        self.label_3.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_3.setAlignment(Qt.AlignCenter)
 
         self.gridLayout.addWidget(self.label_3, 2, 0, 1, 1)
 
         self.le_cent_mm = QLineEdit(self.group)
         self.le_cent_mm.setObjectName(u"le_cent_mm")
-        self.le_cent_mm.setMinimumSize(QSize(100, 0))
-        self.le_cent_mm.setMaximumSize(QSize(100, 16777215))
+        self.le_cent_mm.setMinimumSize(QSize(105, 0))
+        self.le_cent_mm.setMaximumSize(QSize(105, 16777215))
+        self.le_cent_mm.setReadOnly(True)
 
         self.gridLayout.addWidget(self.le_cent_mm, 0, 6, 1, 1)
 
@@ -78,14 +80,15 @@ class Ui_Form(object):
 
         self.le_height = QLineEdit(self.group)
         self.le_height.setObjectName(u"le_height")
-        self.le_height.setMinimumSize(QSize(50, 0))
-        self.le_height.setMaximumSize(QSize(50, 16777215))
+        self.le_height.setMinimumSize(QSize(55, 0))
+        self.le_height.setMaximumSize(QSize(55, 16777215))
+        self.le_height.setReadOnly(True)
 
         self.gridLayout.addWidget(self.le_height, 2, 3, 1, 1)
 
         self.label_2 = QLabel(self.group)
         self.label_2.setObjectName(u"label_2")
-        self.label_2.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_2.setAlignment(Qt.AlignCenter)
 
         self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
 
@@ -101,21 +104,23 @@ class Ui_Form(object):
 
         self.le_sigma = QLineEdit(self.group)
         self.le_sigma.setObjectName(u"le_sigma")
-        self.le_sigma.setMinimumSize(QSize(50, 0))
-        self.le_sigma.setMaximumSize(QSize(50, 16777215))
+        self.le_sigma.setMinimumSize(QSize(55, 0))
+        self.le_sigma.setMaximumSize(QSize(55, 16777215))
+        self.le_sigma.setReadOnly(True)
 
         self.gridLayout.addWidget(self.le_sigma, 1, 3, 1, 1)
 
         self.label = QLabel(self.group)
         self.label.setObjectName(u"label")
-        self.label.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label.setAlignment(Qt.AlignCenter)
 
         self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
 
         self.le_cent_val = QLineEdit(self.group)
         self.le_cent_val.setObjectName(u"le_cent_val")
-        self.le_cent_val.setMinimumSize(QSize(50, 0))
-        self.le_cent_val.setMaximumSize(QSize(50, 16777215))
+        self.le_cent_val.setMinimumSize(QSize(55, 0))
+        self.le_cent_val.setMaximumSize(QSize(55, 16777215))
+        self.le_cent_val.setReadOnly(True)
 
         self.gridLayout.addWidget(self.le_cent_val, 0, 3, 1, 1)
 
@@ -126,8 +131,9 @@ class Ui_Form(object):
 
         self.pb_cent_mm = QPushButton(self.group)
         self.pb_cent_mm.setObjectName(u"pb_cent_mm")
-        self.pb_cent_mm.setMinimumSize(QSize(35, 0))
-        self.pb_cent_mm.setMaximumSize(QSize(35, 16777215))
+        self.pb_cent_mm.setMinimumSize(QSize(55, 0))
+        self.pb_cent_mm.setMaximumSize(QSize(55, 16777215))
+        self.pb_cent_mm.setCheckable(True)
 
         self.gridLayout.addWidget(self.pb_cent_mm, 0, 7, 1, 1)
 
@@ -154,8 +160,8 @@ class Ui_Form(object):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
         self.group.setTitle(QCoreApplication.translate("Form", u"Gaussian Function", None))
         self.label_6.setText(QCoreApplication.translate("Form", u"Value:", None))
-        self.pb_cent_val.setText(QCoreApplication.translate("Form", u"Pick", None))
-        self.label_3.setText(QCoreApplication.translate("Form", u"Height (A):", None))
+        self.pb_cent_val.setText(QCoreApplication.translate("Form", u"Set", None))
+        self.label_3.setText(QCoreApplication.translate("Form", u"Amplitude (A):", None))
         self.fix_center.setText(QCoreApplication.translate("Form", u"Fixed", None))
         self.fix_sigma.setText(QCoreApplication.translate("Form", u"Fixed", None))
         self.label_2.setText(QCoreApplication.translate("Form", u"Sigma ( \u03c3 ):", None))
@@ -163,7 +169,7 @@ class Ui_Form(object):
         self.fix_height.setText(QCoreApplication.translate("Form", u"Fixed", None))
         self.label.setText(QCoreApplication.translate("Form", u"Center ( \u03bc ):", None))
         self.label_4.setText(QCoreApplication.translate("Form", u"Value:", None))
-        self.pb_cent_mm.setText(QCoreApplication.translate("Form", u"Pick", None))
+        self.pb_cent_mm.setText(QCoreApplication.translate("Form", u"Set", None))
         self.label_5.setText(QCoreApplication.translate("Form", u"Value:", None))
         self.bound_sigma.setText(QCoreApplication.translate("Form", u"Bound", None))
     # retranslateUi

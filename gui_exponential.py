@@ -43,7 +43,7 @@ class Ui_Form(object):
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.label = QLabel(self.group)
         self.label.setObjectName(u"label")
-        self.label.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label.setAlignment(Qt.AlignCenter)
 
         self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
 
@@ -54,7 +54,7 @@ class Ui_Form(object):
 
         self.label_2 = QLabel(self.group)
         self.label_2.setObjectName(u"label_2")
-        self.label_2.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_2.setAlignment(Qt.AlignCenter)
 
         self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
 
@@ -62,6 +62,7 @@ class Ui_Form(object):
         self.le_ampl_val.setObjectName(u"le_ampl_val")
         self.le_ampl_val.setMinimumSize(QSize(50, 0))
         self.le_ampl_val.setMaximumSize(QSize(50, 16777215))
+        self.le_ampl_val.setReadOnly(True)
 
         self.gridLayout.addWidget(self.le_ampl_val, 0, 3, 1, 1)
 
@@ -69,6 +70,7 @@ class Ui_Form(object):
         self.le_decay_val.setObjectName(u"le_decay_val")
         self.le_decay_val.setMinimumSize(QSize(50, 0))
         self.le_decay_val.setMaximumSize(QSize(50, 16777215))
+        self.le_decay_val.setReadOnly(True)
 
         self.gridLayout.addWidget(self.le_decay_val, 1, 3, 1, 1)
 

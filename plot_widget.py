@@ -18,26 +18,28 @@ class PlotWidget(pg.GraphicsLayoutWidget):
         self.x_trim = None
         self.y_trim = None
 
-        self.resize(400, 400)
-        self.plot_lu = self.addPlot(title="Deconvoluted Graphs")  # PlotItem
-        self.plot_ru = self.addPlot(title="Imported Data")
+        self.resize(500, 500)
+        self.plot_lu = self.addPlot(title="Trimmed & Decomposed")  # PlotItem
+        self.plot_ru = self.addPlot(title="Imported")
         self.nextRow()
         self.plot_ld = self.addPlot(title="Residuals")
-        self.plot_rd = self.addPlot(title="Raw & Modeled Graphs")
+        self.plot_rd = self.addPlot(title="Trimmed & Modeled")
 
         self.curve_raw = self.plot_ru.plot(pen='y')  # PlotDataItem
         self.curve_trim = self.plot_lu.plot(pen='y')
 
-        self.picker_reg = pg.LinearRegionItem()
-        self.picker_mm = pg.LinearRegionItem()
-        self.picker_cen = pg.InfiniteLine()
+        self.picker_reg_raw = pg.LinearRegionItem(pen=pg.mkPen("white"))
+        self.picker_reg_trim = pg.LinearRegionItem()
+        self.picker_reg_trim_val = None
+        self.picker_line_trim = pg.InfiniteLine(pen="white", movable=True)
+        self.picker_line_trim_val = None
         # self.picker_raw.setZValue(-10)
 
-        self.picker_reg.sigRegionChanged.connect(self.update_trim)
+        self.picker_reg_raw.sigRegionChanged.connect(self.update_trim)
 
     @Slot()
     def update_trim(self):
-        [min_val, max_val] = self.picker_reg.getRegion()
+        [min_val, max_val] = self.picker_reg_raw.getRegion()
         ind = np.logical_and(self.x_raw >= min_val, self.x_raw <= max_val)
         x_temp = self.x_raw[ind]
         y_temp = self.y_raw[ind]
@@ -63,10 +65,10 @@ class PlotWidget(pg.GraphicsLayoutWidget):
 
     def pick_region_raw(self, state: int):
         if state == 1:  # connect picker
-            self.picker_reg.setRegion([np.min(self.x_trim), np.max(self.x_trim)])
-            self.plot_ru.addItem(self.picker_reg)
+            self.picker_reg_raw.setRegion([np.min(self.x_trim), np.max(self.x_trim)])
+            self.plot_ru.addItem(self.picker_reg_raw)
         elif state == -1:  # cancel and close piker
-            self.plot_ru.removeItem(self.picker_reg)
+            self.plot_ru.removeItem(self.picker_reg_raw)
             self.plot_trim()
         elif state == 0:  # accept and close picker
             data = self.curve_trim.getData()
@@ -74,5 +76,13 @@ class PlotWidget(pg.GraphicsLayoutWidget):
             self.y_trim = data[1]
             self.data_models.x_trim = self.x_trim
             self.data_models.y_trim = self.y_trim
-            self.plot_ru.removeItem(self.picker_reg)
+            self.plot_ru.removeItem(self.picker_reg_raw)
             self.sig_data_models_updated.emit(self.data_models)
+
+    def pick_line_trim(self, state: int, val: float):
+        if state == 1:
+            self.picker_line_trim.setValue(val)
+            self.plot_lu.addItem(self.picker_line_trim)
+        elif state == 0:
+            self.picker_line_trim_val = self.picker_line_trim.value()
+            self.plot_lu.removeItem(self.picker_line_trim)

@@ -32,17 +32,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.frm_open.pb_open.clicked.connect(self.slt_import)
         self.frm_list.spin_box.valueChanged.connect(self.slt_new_scan)
-        self.pb_reg.clicked.connect(self.reg_clicked)
-        self.pb_set_reg.clicked.connect(self.set_clicked)
+        self.pb_reg.clicked.connect(self.def_reg)
+        self.pb_set_reg.clicked.connect(self.set_reg)
         self.wg_plot.sig_data_models_updated.connect(self.slt_update_data_models)
         self.frm_list.lw_list.currentRowChanged.connect(self.slt_model_updated)
         self.frm_ctrl.cmb_type.currentTextChanged.connect(self.slt_func_updated)
+        self.frm_ctrl.wg_gaus.pb_cent_val.clicked.connect(self.slt_set_gaus_cent)
 
     @Slot(object)
     def slt_import(self):
         home_dir = QtCore.QDir.homePath()
-        dialog_output = QtWidgets.QFileDialog.getOpenFileName(self, "Open AUC File",
-                                                              home_dir, "(*.auc)")
+        dialog_output = QtWidgets.QFileDialog.getOpenFileName(self, "Open AUC File", home_dir, "(*.auc)")
         file_name = dialog_output[0]
         if len(file_name) == 0:
             return
@@ -87,7 +87,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.set_lw_species()
 
     @Slot(bool)
-    def reg_clicked(self, checked):
+    def def_reg(self, checked):
         icon1 = QtGui.QIcon()
         icon2 = QtGui.QIcon()
         icon1.addFile(u":/Icon/Resources/Icons/horizontal_distribute_FILL0_wght400_GRAD0_opsz48.svg", QtCore.QSize(),
@@ -112,7 +112,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.wg_plot.pick_region_raw(-1)
 
     @Slot()
-    def set_clicked(self):
+    def set_reg(self):
         icon = QtGui.QIcon()
         icon.addFile(u":/Icon/Resources/Icons/horizontal_distribute_FILL0_wght400_GRAD0_opsz48.svg", QtCore.QSize(),
                      QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -138,6 +138,23 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.frm_ctrl.stacked.setCurrentWidget(self.frm_ctrl.wg_gaus)
         elif text == 'Exponential':
             self.frm_ctrl.stacked.setCurrentWidget(self.frm_ctrl.wg_exp)
+
+    @Slot(bool)
+    def slt_set_gaus_cent(self, checked):
+        if checked:
+            self.frm_ctrl.wg_gaus.pb_cent_val.setText("Apply")
+            self.frm_ctrl.wg_gaus.pb_cent_val.setStyleSheet(u"background-color: rgb(246, 97, 81);")
+            data_models = self.all_data_models[self.scan_id]
+            val = (data_models.x_trim[-1] - data_models.x_trim[0]) / 2.0
+            val += data_models.x_trim[0]
+            self.wg_plot.pick_line_trim(1, val)
+        else:
+            self.frm_ctrl.wg_gaus.pb_cent_val.setText("Set")
+            self.frm_ctrl.wg_gaus.pb_cent_val.setStyleSheet(u"background-color: ;")
+            self.wg_plot.pick_line_trim(0, 0)
+            val = self.wg_plot.picker_line_trim_val
+            self.frm_ctrl.wg_gaus.le_cent_val.setText(f"{val: .3f}")
+            self.frm_ctrl.wg_gaus.le_cent_val.setCursorPosition(0)
 
     def set_scan_spb(self):
         self.frm_list.spin_box.valueChanged.disconnect(self.slt_new_scan)
