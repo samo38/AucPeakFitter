@@ -101,7 +101,7 @@ class Ui_Frame(object):
         icon = QIcon()
         icon.addFile(u":/Icon/Resources/Icons/file_open_FILL0_wght400_GRAD0_opsz48.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.pb_open.setIcon(icon)
-        self.pb_open.setIconSize(QSize(25, 25))
+        self.pb_open.setIconSize(QSize(16, 16))
 
         self.horizontalLayout_4.addWidget(self.pb_open)
 

@@ -30,19 +30,19 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <property name="spacing">
-    <number>10</number>
+    <number>5</number>
    </property>
    <property name="leftMargin">
     <number>0</number>
    </property>
    <property name="topMargin">
-    <number>0</number>
+    <number>2</number>
    </property>
    <property name="rightMargin">
     <number>0</number>
    </property>
    <property name="bottomMargin">
-    <number>0</number>
+    <number>2</number>
    </property>
    <item>
     <widget class="QFrame" name="frm_scan">
@@ -168,8 +168,8 @@
         </property>
         <property name="iconSize">
          <size>
-          <width>20</width>
-          <height>20</height>
+          <width>16</width>
+          <height>16</height>
          </size>
         </property>
        </widget>
@@ -178,14 +178,14 @@
        <widget class="QPushButton" name="pb_run">
         <property name="minimumSize">
          <size>
-          <width>75</width>
-          <height>30</height>
+          <width>65</width>
+          <height>25</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>75</width>
-          <height>30</height>
+          <width>65</width>
+          <height>25</height>
          </size>
         </property>
         <property name="styleSheet">
@@ -200,8 +200,8 @@
         </property>
         <property name="iconSize">
          <size>
-          <width>25</width>
-          <height>25</height>
+          <width>16</width>
+          <height>16</height>
          </size>
         </property>
        </widget>
@@ -210,14 +210,14 @@
        <widget class="QPushButton" name="pb_rep">
         <property name="minimumSize">
          <size>
-          <width>0</width>
-          <height>30</height>
+          <width>80</width>
+          <height>25</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>90</width>
-          <height>30</height>
+          <width>80</width>
+          <height>25</height>
          </size>
         </property>
         <property name="styleSheet">
@@ -232,8 +232,8 @@
         </property>
         <property name="iconSize">
          <size>
-          <width>25</width>
-          <height>25</height>
+          <width>16</width>
+          <height>16</height>
          </size>
         </property>
        </widget>

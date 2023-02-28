@@ -47,8 +47,8 @@ class Ui_Frame(object):
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.frm_new = QFrame(self.group)
         self.frm_new.setObjectName(u"frm_new")
-        self.frm_new.setMinimumSize(QSize(170, 0))
-        self.frm_new.setMaximumSize(QSize(170, 10000))
+        self.frm_new.setMinimumSize(QSize(190, 0))
+        self.frm_new.setMaximumSize(QSize(190, 10000))
         self.frm_new.setFrameShape(QFrame.NoFrame)
         self.frm_new.setFrameShadow(QFrame.Raised)
         self.gridLayout = QGridLayout(self.frm_new)
@@ -57,13 +57,13 @@ class Ui_Frame(object):
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.pb_new = QPushButton(self.frm_new)
         self.pb_new.setObjectName(u"pb_new")
-        self.pb_new.setMinimumSize(QSize(70, 25))
-        self.pb_new.setMaximumSize(QSize(70, 25))
+        self.pb_new.setMinimumSize(QSize(90, 25))
+        self.pb_new.setMaximumSize(QSize(90, 25))
         self.pb_new.setStyleSheet(u"background-color: rgb(249, 240, 107);")
         icon = QIcon()
         icon.addFile(u":/Icon/Resources/Icons/add_FILL0_wght400_GRAD0_opsz48.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.pb_new.setIcon(icon)
-        self.pb_new.setIconSize(QSize(20, 20))
+        self.pb_new.setIconSize(QSize(16, 16))
 
         self.gridLayout.addWidget(self.pb_new, 0, 0, 1, 1)
 
@@ -75,7 +75,7 @@ class Ui_Frame(object):
         icon1 = QIcon()
         icon1.addFile(u":/Icon/Resources/Icons/delete_FILL0_wght400_GRAD0_opsz48.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.pb_del.setIcon(icon1)
-        self.pb_del.setIconSize(QSize(20, 20))
+        self.pb_del.setIconSize(QSize(16, 16))
 
         self.gridLayout.addWidget(self.pb_del, 0, 1, 1, 1)
 
@@ -159,7 +159,7 @@ class Ui_Frame(object):
     def retranslateUi(self, Frame):
         Frame.setWindowTitle(QCoreApplication.translate("Frame", u"Frame", None))
         self.group.setTitle(QCoreApplication.translate("Frame", u"Species Control", None))
-        self.pb_new.setText(QCoreApplication.translate("Frame", u"New", None))
+        self.pb_new.setText(QCoreApplication.translate("Frame", u"Add", None))
         self.pb_del.setText(QCoreApplication.translate("Frame", u"Delete", None))
         self.pb_vis.setText(QCoreApplication.translate("Frame", u"ON", None))
         self.lb_warn.setText(QCoreApplication.translate("Frame", u"Not Ready", None))
