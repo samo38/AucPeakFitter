@@ -16,8 +16,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
-    QMainWindow, QPushButton, QSizePolicy, QStatusBar,
-    QVBoxLayout, QWidget)
+    QMainWindow, QPushButton, QSizePolicy, QVBoxLayout,
+    QWidget)
 
 from embed_widgets import (ImportWidget, SpeciesControl, SpeciesList)
 from plot_widget import PlotWidget
@@ -97,6 +97,7 @@ class Ui_MainWindow(object):
         icon1.addFile(u":/Icon/Resources/Icons/horizontal_distribute_FILL0_wght400_GRAD0_opsz48.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.pb_reg.setIcon(icon1)
         self.pb_reg.setIconSize(QSize(16, 16))
+        self.pb_reg.setCheckable(True)
         self.pb_reg.setAutoDefault(False)
         self.pb_reg.setFlat(False)
 
@@ -128,9 +129,6 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.frm_ctrl, 2, 0, 1, 2)
 
         MainWindow.setCentralWidget(self.centralwidget)
-        self.st_bar = QStatusBar(MainWindow)
-        self.st_bar.setObjectName(u"st_bar")
-        MainWindow.setStatusBar(self.st_bar)
 
         self.retranslateUi(MainWindow)
 
@@ -144,6 +142,6 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"AUC Peak Decomposition Program", None))
         self.pb_reg.setText(QCoreApplication.translate("MainWindow", u"Region", None))
-        self.pb_set_reg.setText(QCoreApplication.translate("MainWindow", u"Set", None))
+        self.pb_set_reg.setText(QCoreApplication.translate("MainWindow", u"Apply", None))
     # retranslateUi
 
