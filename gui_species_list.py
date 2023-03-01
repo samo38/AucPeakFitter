@@ -66,10 +66,10 @@ class Ui_Frame(object):
 
         self.verticalLayout.addWidget(self.lb_sp, 0, Qt.AlignHCenter)
 
-        self.lw_list = QListWidget(self.frm_list)
-        self.lw_list.setObjectName(u"lw_list")
+        self.lw_species = QListWidget(self.frm_list)
+        self.lw_species.setObjectName(u"lw_species")
 
-        self.verticalLayout.addWidget(self.lw_list)
+        self.verticalLayout.addWidget(self.lw_species)
 
 
         self.verticalLayout_2.addWidget(self.frm_list)

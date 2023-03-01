@@ -113,7 +113,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QListWidget" name="lw_list"/>
+       <widget class="QListWidget" name="lw_species"/>
       </item>
      </layout>
     </widget>

@@ -26,7 +26,7 @@ class Ui_Frame(object):
     def setupUi(self, Frame):
         if not Frame.objectName():
             Frame.setObjectName(u"Frame")
-        Frame.resize(681, 140)
+        Frame.resize(605, 140)
         Frame.setMinimumSize(QSize(0, 140))
         Frame.setMaximumSize(QSize(16777215, 140))
         self.horizontalLayout = QHBoxLayout(Frame)
@@ -47,8 +47,8 @@ class Ui_Frame(object):
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.frm_new = QFrame(self.group)
         self.frm_new.setObjectName(u"frm_new")
-        self.frm_new.setMinimumSize(QSize(190, 0))
-        self.frm_new.setMaximumSize(QSize(190, 10000))
+        self.frm_new.setMinimumSize(QSize(170, 0))
+        self.frm_new.setMaximumSize(QSize(170, 10000))
         self.frm_new.setFrameShape(QFrame.NoFrame)
         self.frm_new.setFrameShadow(QFrame.Raised)
         self.gridLayout = QGridLayout(self.frm_new)
@@ -57,9 +57,9 @@ class Ui_Frame(object):
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.pb_new = QPushButton(self.frm_new)
         self.pb_new.setObjectName(u"pb_new")
-        self.pb_new.setMinimumSize(QSize(90, 25))
-        self.pb_new.setMaximumSize(QSize(90, 25))
-        self.pb_new.setStyleSheet(u"background-color: rgb(249, 240, 107);")
+        self.pb_new.setMinimumSize(QSize(80, 25))
+        self.pb_new.setMaximumSize(QSize(80, 25))
+        self.pb_new.setStyleSheet(u"")
         icon = QIcon()
         icon.addFile(u":/Icon/Resources/Icons/add_FILL0_wght400_GRAD0_opsz48.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.pb_new.setIcon(icon)
@@ -69,9 +69,9 @@ class Ui_Frame(object):
 
         self.pb_del = QPushButton(self.frm_new)
         self.pb_del.setObjectName(u"pb_del")
-        self.pb_del.setMinimumSize(QSize(90, 25))
-        self.pb_del.setMaximumSize(QSize(90, 25))
-        self.pb_del.setStyleSheet(u"background-color: rgb(224, 27, 36);")
+        self.pb_del.setMinimumSize(QSize(80, 25))
+        self.pb_del.setMaximumSize(QSize(80, 25))
+        self.pb_del.setStyleSheet(u"")
         icon1 = QIcon()
         icon1.addFile(u":/Icon/Resources/Icons/delete_FILL0_wght400_GRAD0_opsz48.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.pb_del.setIcon(icon1)
@@ -81,20 +81,21 @@ class Ui_Frame(object):
 
         self.pb_vis = QPushButton(self.frm_new)
         self.pb_vis.setObjectName(u"pb_vis")
-        self.pb_vis.setMinimumSize(QSize(70, 25))
-        self.pb_vis.setMaximumSize(QSize(70, 25))
+        self.pb_vis.setMinimumSize(QSize(80, 25))
+        self.pb_vis.setMaximumSize(QSize(80, 25))
         self.pb_vis.setStyleSheet(u"")
         icon2 = QIcon()
         icon2.addFile(u":/Icon/Resources/Icons/visibility_FILL0_wght400_GRAD0_opsz48.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.pb_vis.setIcon(icon2)
         self.pb_vis.setIconSize(QSize(20, 20))
+        self.pb_vis.setFlat(True)
 
         self.gridLayout.addWidget(self.pb_vis, 1, 0, 1, 1)
 
         self.lb_warn = QLabel(self.frm_new)
         self.lb_warn.setObjectName(u"lb_warn")
-        self.lb_warn.setMinimumSize(QSize(90, 25))
-        self.lb_warn.setMaximumSize(QSize(90, 25))
+        self.lb_warn.setMinimumSize(QSize(80, 25))
+        self.lb_warn.setMaximumSize(QSize(80, 25))
         self.lb_warn.setStyleSheet(u"color: rgb(224, 27, 36);")
         self.lb_warn.setAlignment(Qt.AlignCenter)
 
@@ -102,31 +103,31 @@ class Ui_Frame(object):
 
         self.lb_name = QLabel(self.frm_new)
         self.lb_name.setObjectName(u"lb_name")
-        self.lb_name.setMinimumSize(QSize(70, 25))
-        self.lb_name.setMaximumSize(QSize(70, 25))
+        self.lb_name.setMinimumSize(QSize(80, 25))
+        self.lb_name.setMaximumSize(QSize(80, 25))
         self.lb_name.setAlignment(Qt.AlignCenter)
 
         self.gridLayout.addWidget(self.lb_name, 2, 0, 1, 1)
 
         self.le_name = QLineEdit(self.frm_new)
         self.le_name.setObjectName(u"le_name")
-        self.le_name.setMinimumSize(QSize(90, 25))
-        self.le_name.setMaximumSize(QSize(90, 25))
+        self.le_name.setMinimumSize(QSize(80, 25))
+        self.le_name.setMaximumSize(QSize(80, 25))
 
         self.gridLayout.addWidget(self.le_name, 2, 1, 1, 1)
 
         self.lb_type = QLabel(self.frm_new)
         self.lb_type.setObjectName(u"lb_type")
-        self.lb_type.setMinimumSize(QSize(70, 25))
-        self.lb_type.setMaximumSize(QSize(70, 25))
+        self.lb_type.setMinimumSize(QSize(80, 25))
+        self.lb_type.setMaximumSize(QSize(80, 25))
         self.lb_type.setAlignment(Qt.AlignCenter)
 
         self.gridLayout.addWidget(self.lb_type, 3, 0, 1, 1)
 
         self.cmb_type = QComboBox(self.frm_new)
         self.cmb_type.setObjectName(u"cmb_type")
-        self.cmb_type.setMinimumSize(QSize(90, 25))
-        self.cmb_type.setMaximumSize(QSize(90, 25))
+        self.cmb_type.setMinimumSize(QSize(80, 25))
+        self.cmb_type.setMaximumSize(QSize(80, 25))
 
         self.gridLayout.addWidget(self.cmb_type, 3, 1, 1, 1)
 
@@ -158,7 +159,7 @@ class Ui_Frame(object):
 
     def retranslateUi(self, Frame):
         Frame.setWindowTitle(QCoreApplication.translate("Frame", u"Frame", None))
-        self.group.setTitle(QCoreApplication.translate("Frame", u"Species Control", None))
+        self.group.setTitle(QCoreApplication.translate("Frame", u" Species Control", None))
         self.pb_new.setText(QCoreApplication.translate("Frame", u"Add", None))
         self.pb_del.setText(QCoreApplication.translate("Frame", u"Delete", None))
         self.pb_vis.setText(QCoreApplication.translate("Frame", u"ON", None))
