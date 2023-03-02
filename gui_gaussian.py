@@ -78,13 +78,13 @@ class Ui_Form(object):
 
         self.gridLayout.addWidget(self.fix_sigma, 1, 1, 1, 1)
 
-        self.le_height = QLineEdit(self.group)
-        self.le_height.setObjectName(u"le_height")
-        self.le_height.setMinimumSize(QSize(55, 0))
-        self.le_height.setMaximumSize(QSize(55, 16777215))
-        self.le_height.setReadOnly(True)
+        self.le_amp = QLineEdit(self.group)
+        self.le_amp.setObjectName(u"le_amp")
+        self.le_amp.setMinimumSize(QSize(55, 0))
+        self.le_amp.setMaximumSize(QSize(55, 16777215))
+        self.le_amp.setReadOnly(True)
 
-        self.gridLayout.addWidget(self.le_height, 2, 3, 1, 1)
+        self.gridLayout.addWidget(self.le_amp, 2, 3, 1, 1)
 
         self.label_2 = QLabel(self.group)
         self.label_2.setObjectName(u"label_2")
@@ -97,10 +97,10 @@ class Ui_Form(object):
 
         self.gridLayout.addWidget(self.label_7, 0, 5, 1, 1)
 
-        self.fix_height = QCheckBox(self.group)
-        self.fix_height.setObjectName(u"fix_height")
+        self.fix_amp = QCheckBox(self.group)
+        self.fix_amp.setObjectName(u"fix_amp")
 
-        self.gridLayout.addWidget(self.fix_height, 2, 1, 1, 1)
+        self.gridLayout.addWidget(self.fix_amp, 2, 1, 1, 1)
 
         self.le_sigma = QLineEdit(self.group)
         self.le_sigma.setObjectName(u"le_sigma")
@@ -166,7 +166,7 @@ class Ui_Form(object):
         self.fix_sigma.setText(QCoreApplication.translate("Form", u"Fixed", None))
         self.label_2.setText(QCoreApplication.translate("Form", u"Sigma ( \u03c3 ):", None))
         self.label_7.setText(QCoreApplication.translate("Form", u"Min-Max:", None))
-        self.fix_height.setText(QCoreApplication.translate("Form", u"Fixed", None))
+        self.fix_amp.setText(QCoreApplication.translate("Form", u"Fixed", None))
         self.label.setText(QCoreApplication.translate("Form", u"Center ( \u03bc ):", None))
         self.label_4.setText(QCoreApplication.translate("Form", u"Value:", None))
         self.pb_cent_mm.setText(QCoreApplication.translate("Form", u"Set", None))

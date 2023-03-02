@@ -4,7 +4,7 @@ import numpy as np
 class Params:
 
     def __init__(self):
-        self.fixed = None
+        self.fixed = False
         self.value = None
         self.min = None
         self.max = None
@@ -36,6 +36,7 @@ class Model:
             self.type = t
             self.params = Exponential()
         self.name = ''
+        self.visible = True
 
 
 class DataModels:
@@ -63,6 +64,9 @@ class DataModels:
     def set_model(self, n: int, model: Model):
         if model.type is not None:
             self.models[n] = model
+
+    def get_data(self):
+        return self.x_raw, self.y_raw, self.x_trim, self.y_trim
 
     def clear(self):
         self.x_trim = None

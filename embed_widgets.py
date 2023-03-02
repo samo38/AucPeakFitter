@@ -41,8 +41,8 @@ class ImportWidget(QFrame, gui_import.Ui_Frame):
         auc_data = AucRawData()
         state = auc_data.read(file_name)
         if not state:
-            QMessageBox.warning(self, "Warning!",
-                                          f"The following file is not readable by this program:\n{file_name}")
+            msg = f"The following file is not readable by this program:\n{file_name}"
+            QMessageBox.warning(self, "Warning!", msg)
             return
         self.le_desc.setText(auc_data.description)
         self.le_type.setText(auc_data.type)
@@ -64,18 +64,51 @@ class ImportWidget(QFrame, gui_import.Ui_Frame):
 
     def update_info(self, n: int):
         rpm = self.rpm[n] / 1000
-        self.frm_open.le_rpm.setText(f"{rpm: g}k")
+        self.le_rpm.setText(f"{rpm: g}k")
         wave = self.wavelength[n]
-        self.frm_open.le_wavl.setText(f"{wave: g}")
+        self.le_wavl.setText(f"{wave: g}")
         temp = self.temperature[n]
-        self.frm_open.le_temp.setText(f"{temp: g}")
+        self.le_temp.setText(f"{temp: g}")
 
 
 class SpeciesList(QFrame, gui_species_list.Ui_Frame):
 
+    sig_new_scan_id = Signal(int)
+    sig_new_species = Signal()
+    sig_species_id = Signal(int)
+
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setupUi(self)
+        self.spin_box.valueChanged.connect(self.slt_new_sb_id)
+        self.lw_species.currentRowChanged.connect(self.slt_species_changed)
+
+    @Slot(int)
+    def slt_new_sb_id(self, n: int):
+        self.sig_new_scan_id.emit(n - 1)
+
+    @Slot(int)
+    def slt_species_changed(self, row):
+        n_items = self.lw_species.count()
+        if row == (n_items - 1):
+            self.sig_new_species.emit()
+        else:
+            self.sig_species_id.emit(row)
+
+    def set_spin_box(self, n: int):
+        self.spin_box.valueChanged.disconnect(self.slt_new_sb_id)
+        self.spin_box.clear()
+        self.spin_box.setMinimum(1)
+        self.spin_box.setMaximum(n)
+        self.spin_box.valueChanged.connect(self.slt_new_sb_id)
+        self.spin_box.setValue(n)
+
+    def set_species_list(self, items: list):
+        self.lw_species.currentRowChanged.disconnect(self.slt_species_changed)
+        self.lw_species.clear()
+        for i in range(len(items)):
+            self.lw_species.addItem(items[i])
+        self.lw_species.currentRowChanged.connect(self.slt_species_changed)
 
 
 class SpeciesControl(QFrame, gui_species_control.Ui_Frame):
@@ -87,16 +120,27 @@ class SpeciesControl(QFrame, gui_species_control.Ui_Frame):
         super().__init__(parent=parent)
         self.setupUi(self)
 
+        self.icon_vis = QIcon()
+        self.icon_vis.addFile(u":/Icon/Resources/Icons/visibility_FILL0_wght400_GRAD0_opsz48.svg",
+                              QSize(), QIcon.Normal, QIcon.Off)
+        self.icon_invis = QIcon()
+        self.icon_invis.addFile(u":/Icon/Resources/Icons/visibility_off_FILL0_wght400_GRAD0_opsz48.svg",
+                              QSize(), QIcon.Normal, QIcon.Off)
+
         self.cmb_type.clear()
         self.cmb_type.addItem("Gaussian")
         self.cmb_type.addItem("Exponential")
 
-        self.model = dms.Model("GAUSS")
+        self.gauss_model = dms.Model("GAUSS")
+        self.exp_model = dms.Model("EXP")
+
+        self.vis_state = True
         self.x_arr = None
         self.lined_picked = None
         self.region_picked = None
         self.cmb_type.currentTextChanged.connect(self.slt_func_updated)
         self.wg_gaus.pb_cent_val.clicked.connect(self.slt_set_gauss_cent)
+        self.pb_vis.clicked.connect(self.slt_update_vis)
         self.cmb_type.setCurrentIndex(0)
         self.slt_func_updated('Gaussian')
 
@@ -104,10 +148,10 @@ class SpeciesControl(QFrame, gui_species_control.Ui_Frame):
     def slt_func_updated(self, text):
         if text == 'Gaussian':
             self.stacked.setCurrentWidget(self.wg_gaus)
-            self.model = dms.Model("GAUSS")
+            self.gauss_model = dms.Model("GAUSS")
         elif text == 'Exponential':
             self.stacked.setCurrentWidget(self.wg_exp)
-            self.model = dms.Model("EXP")
+            self.exp_model = dms.Model("EXP")
 
     @Slot(bool)
     def slt_set_gauss_cent(self, checked):
@@ -130,11 +174,134 @@ class SpeciesControl(QFrame, gui_species_control.Ui_Frame):
             self.wg_gaus.le_cent_val.setText(f"{self.lined_picked: .3f}")
             self.wg_gaus.le_cent_val.setCursorPosition(0)
 
-    def set_model(self, model: dms.Model):
-        self.model = model
+    @Slot(bool)
+    def slt_update_vis(self):
+        self.vis_state = not self.vis_state
+        self.change_vis_btn(self.vis_state)
+        if self.cmb_type.currentText() == "Gaussian":
+            self.gauss_model.visible = self.vis_state
+        elif self.cmb_type.currentText() == "Exponential":
+            self.exp_model = self.vis_state
 
-    def get_model(self):
-        return self.model
+    def change_vis_btn(self, state: bool):
+        if state:
+            self.pb_vis.setText("ON")
+            self.pb_vis.setIcon(self.icon_vis)
+            self.pb_vis.setStyleSheet("background-color: ;")
+        else:
+            self.pb_vis.setText("OFF")
+            self.pb_vis.setIcon(self.icon_invis)
+            self.pb_vis.setStyleSheet("background-color: rgb(220,220,220);")
+
+    def setup_widget(self, model=None):
+        if model is None:
+            self.vis_state = True
+            self.gauss_model = dms.Model("GAUSS")
+            self.stacked.setCurrentWidget(self.wg_gaus)
+            self.fill_gauss()
+            self.le_name.setText(self.gauss_model.name)
+        else:
+            if model.type == "GAUSS":
+                self.gauss_model = model
+                self.fill_gauss()
+                self.le_name.setText(self.gauss_model.name)
+                self.vis_state = self.gauss_model.visible
+
+            elif model.type == "EXP":
+                self.exp_model = model
+                self.fill_exp()
+                self.le_name.setText(self.exp_model.name)
+                self.vis_state = self.exp_model.visible
+        self.change_vis_btn(self.vis_state)
+
+    def fill_gauss(self):
+        amp_fixed = self.gauss_model.params.amplitude.fixed
+        amp_val = self.gauss_model.params.amplitude.value
+
+        cen_fixed = self.gauss_model.params.center.fixed
+        cen_val = self.gauss_model.params.center.value
+        cen_min = self.gauss_model.params.center.min
+        cen_max = self.gauss_model.params.center.max
+
+        sig_fixed = self.gauss_model.params.sigma.fixed
+        sig_val = self.gauss_model.params.sigma.value
+        sig_bound = self.gauss_model.params.sigma.bound
+
+        if amp_fixed:
+            self.wg_gaus.fix_amp.setChecked(True)
+        else:
+            self.wg_gaus.fix_amp.setChecked(False)
+
+        if cen_fixed:
+            self.wg_gaus.fix_center.setChecked(True)
+        else:
+            self.wg_gaus.fix_center.setChecked(False)
+
+        if sig_fixed:
+            self.wg_gaus.fix_sigma.setChecked(False)
+        else:
+            self.wg_gaus.fix_sigma.setChecked(False)
+
+        if amp_val is None:
+            self.wg_gaus.le_amp.clear()
+        else:
+            self.wg_gaus.le_amp.setText(f"{amp_val: .3f}")
+
+        if cen_val is None:
+            self.wg_gaus.le_cent_val.clear()
+        else:
+            self.wg_gaus.le_cent_val.setText(f"{cen_val: .3f}")
+
+        if (cen_max is None) or (cen_min is None):
+            self.wg_gaus.le_cent_mm.clear()
+        else:
+            self.wg_gaus.le_cent_mm.setText(f"{cen_min: .3f}-{cen_max: .3f}")
+
+        if sig_val is None:
+            self.wg_gaus.le_sigma.clear()
+        else:
+            self.wg_gaus.le_sigma.setText(f"{sig_val: .3f}")
+
+        if sig_bound:
+            self.wg_gaus.bound_sigma.setChecked(True)
+        else:
+            self.wg_gaus.bound_sigma.setChecked(False)
+
+    def fill_exp(self):
+        amp_fixed = self.gauss_model.params.amplitude.fixed
+        amp_val = self.gauss_model.params.amplitude.value
+
+        dec_fixed = self.gauss_model.params.center.fixed
+        dec_val = self.gauss_model.params.center.value
+
+        if amp_fixed:
+            self.wg_exp.fix_amp.setChecked(True)
+        else:
+            self.wg_exp.fix_amp.setChecked(False)
+
+        if dec_fixed:
+            self.wg_exp.fix_amp.setChecked(True)
+        else:
+            self.wg_exp.fix_amp.setChecked(False)
+
+        if amp_val is None:
+            self.wg_exp.le_ampl_val.clear()
+        else:
+            self.wg_exp.le_ampl_val.setText(f"{amp_val: .3f}")
+
+        if dec_val is None:
+            self.wg_exp.le_decay_val.clear()
+        else:
+            self.wg_exp.le_decay_val.setText(f"{dec_val: .3f}")
+
+    def set_model(self, model: dms.Model):
+        if model.type == "GAUSS":
+            self.gauss_model = model
+        elif model.type == "EXP":
+            self.exp_model = model
+
+    # def get_model(self):
+    #     return self.model
 
     def set_x_arr(self, x_arr: np.array):
         self.x_arr = x_arr

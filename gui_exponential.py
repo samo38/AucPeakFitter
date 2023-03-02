@@ -58,13 +58,13 @@ class Ui_Form(object):
 
         self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
 
-        self.le_ampl_val = QLineEdit(self.group)
-        self.le_ampl_val.setObjectName(u"le_ampl_val")
-        self.le_ampl_val.setMinimumSize(QSize(50, 0))
-        self.le_ampl_val.setMaximumSize(QSize(50, 16777215))
-        self.le_ampl_val.setReadOnly(True)
+        self.le_amp_val = QLineEdit(self.group)
+        self.le_amp_val.setObjectName(u"le_amp_val")
+        self.le_amp_val.setMinimumSize(QSize(50, 0))
+        self.le_amp_val.setMaximumSize(QSize(50, 16777215))
+        self.le_amp_val.setReadOnly(True)
 
-        self.gridLayout.addWidget(self.le_ampl_val, 0, 3, 1, 1)
+        self.gridLayout.addWidget(self.le_amp_val, 0, 3, 1, 1)
 
         self.le_decay_val = QLineEdit(self.group)
         self.le_decay_val.setObjectName(u"le_decay_val")
@@ -74,10 +74,10 @@ class Ui_Form(object):
 
         self.gridLayout.addWidget(self.le_decay_val, 1, 3, 1, 1)
 
-        self.fix_ampl = QCheckBox(self.group)
-        self.fix_ampl.setObjectName(u"fix_ampl")
+        self.fix_amp = QCheckBox(self.group)
+        self.fix_amp.setObjectName(u"fix_amp")
 
-        self.gridLayout.addWidget(self.fix_ampl, 0, 1, 1, 1)
+        self.gridLayout.addWidget(self.fix_amp, 0, 1, 1, 1)
 
         self.fix_decay = QCheckBox(self.group)
         self.fix_decay.setObjectName(u"fix_decay")
@@ -104,7 +104,7 @@ class Ui_Form(object):
         self.label.setText(QCoreApplication.translate("Form", u"Amplitude (A):", None))
         self.label_4.setText(QCoreApplication.translate("Form", u"Value:", None))
         self.label_2.setText(QCoreApplication.translate("Form", u"Decay ( \u03c4 ):", None))
-        self.fix_ampl.setText(QCoreApplication.translate("Form", u"Fixed", None))
+        self.fix_amp.setText(QCoreApplication.translate("Form", u"Fixed", None))
         self.fix_decay.setText(QCoreApplication.translate("Form", u"Fixed", None))
         self.label_5.setText(QCoreApplication.translate("Form", u"Value:", None))
     # retranslateUi

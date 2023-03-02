@@ -24,8 +24,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # self.pb_set_reg.setEnabled(False)
         self.frm_list.lw_species.clear()
 
-        # self.frm_open.sig_new_file.connect(self.slt_new_file)
-        # self.frm_list.spin_box.valueChanged.connect(self.slt_new_scan)
+        self.frm_open.sig_new_file.connect(self.slt_new_file)
+        self.frm_list.sig_new_scan_id.connect(self.slt_new_scan)
+        self.frm_list.sig_species_id.connect(self.slt_setup_species)
+        self.frm_list.sig_new_species.connect(self.slt_setup_new_species)
         # self.wg_plot.sig_data_models_updated.connect(self.slt_update_data_models)
         # self.frm_list.lw_species.currentRowChanged.connect(self.slt_model_changed)
         # self.frm_ctrl.sig_pick_line.connect(self.slt_pick_line_trim)
@@ -36,17 +38,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.frm_plot.setEnabled(True)
         self.frm_ctrl.setEnabled(True)
         self.frm_list.setEnabled(True)
-        self.set_scan_spb()
+        self.frm_list.set_spin_box(len(self.all_data_models))
 
     @Slot(int)
     def slt_new_scan(self, scan_id: int):
-        scan_id -= 1
         self.scan_id = scan_id
         self.frm_open.update_info(scan_id)
-        data_model = dms.DataModels
-        # model = self.all_data_models[self.scan_id]
+        data_models = self.all_data_models[self.scan_id]
+        x, y, xt, yt = data_models.get_data()
+        self.frm_plot.set_data(x, y, xt, yt)
+        self.set_species()
         # self.wg_plot.import_model(self.all_data_models[])
-        self.set_lw_species()
+        # self.set_species()
 
     @Slot(dms.DataModels)
     def slt_update_data_models(self, model):
@@ -62,22 +65,24 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     @Slot(int, float)
     def slt_pick_line_trim(self, state, value):
-        self.wg_plot.pick_line_trim(state, value)
+        self.frm_plot.pick_line_trim(state, value)
         if state == 0:
-            self.frm_ctrl.lined_picked = self.wg_plot.line_val_trim
+            self.frm_ctrl.lined_picked = self.frm_plot.line_val_trim
 
-    def set_scan_spb(self):
-        self.frm_list.spin_box.valueChanged.disconnect(self.slt_new_scan)
-        self.frm_list.spin_box.clear()
-        self.frm_list.spin_box.setMinimum(1)
-        self.frm_list.spin_box.setMaximum(self.n_scans)
-        self.frm_list.spin_box.valueChanged.connect(self.slt_new_scan)
-        self.frm_list.spin_box.setValue(self.n_scans)
+    @Slot(int)
+    def slt_setup_species(self, m_id):
+        model = self.all_data_models[self.scan_id].models[m_id]
+        self.frm_ctrl.setup_widget(model)
 
-    def set_lw_species(self):
-        self.frm_list.lw_species.currentRowChanged.disconnect(self.slt_model_changed)
-        self.frm_list.lw_species.clear()
+    def slt_setup_new_species(self):
+        self.frm_ctrl.setup_widget()
+
+    def set_species(self):
+        # self.frm_list.lw_species.currentRowChanged.disconnect(self.slt_model_changed)
+        # self.frm_list.lw_species.clear()
+        # data_models = self.all_data_models[self.scan_id]
         data_models = self.all_data_models[self.scan_id]
+        species_list = []
         n_models = len(data_models.models)
         for i in range(n_models):
             name = f"{i + 1}-{data_models.models[i].name}-"
@@ -85,11 +90,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if data_models.models[i].type == "GAUSS":
                 if data_models.models[i].params.sigma.bound:
                     name += "-B"
-            self.frm_list.lw_species.addItem(name)
-        self.frm_list.lw_species.addItem(":: New Species")
-        self.frm_list.lw_species.currentRowChanged.connect(self.slt_model_changed)
-        self.model_id = 0
-        self.frm_list.lw_species.setCurrentRow(self.model_id)
+            species_list.append(name)
+        species_list.append("::: New Species")
+        self.frm_list.set_species_list(species_list)
+
+        # self.frm_list.lw_species.currentRowChanged.connect(self.slt_model_changed)
+        # self.model_id = 0
+        # self.frm_list.lw_species.setCurrentRow(self.model_id)
 
 
 

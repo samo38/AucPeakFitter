@@ -143,7 +143,7 @@ font-weight: normal;
        </widget>
       </item>
       <item row="2" column="3">
-       <widget class="QLineEdit" name="le_height">
+       <widget class="QLineEdit" name="le_amp">
         <property name="minimumSize">
          <size>
           <width>55</width>
@@ -179,7 +179,7 @@ font-weight: normal;
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QCheckBox" name="fix_height">
+       <widget class="QCheckBox" name="fix_amp">
         <property name="text">
          <string>Fixed</string>
         </property>
