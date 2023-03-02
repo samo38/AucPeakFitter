@@ -36,12 +36,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def slt_new_file(self, all_data):
         self.all_data_models = all_data
         self.frm_plot.setEnabled(True)
-        self.frm_ctrl.setEnabled(True)
+        # self.frm_ctrl.setEnabled(True)
         self.frm_list.setEnabled(True)
         self.frm_list.set_spin_box(len(self.all_data_models))
 
     @Slot(int)
     def slt_new_scan(self, scan_id: int):
+        self.frm_ctrl.setEnabled(False)
         self.scan_id = scan_id
         self.frm_open.update_info(scan_id)
         data_models = self.all_data_models[self.scan_id]
@@ -73,9 +74,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def slt_setup_species(self, m_id):
         model = self.all_data_models[self.scan_id].models[m_id]
         self.frm_ctrl.setup_widget(model)
+        self.frm_ctrl.setEnabled(True)
 
     def slt_setup_new_species(self):
         self.frm_ctrl.setup_widget()
+        self.frm_ctrl.setEnabled(True)
 
     def set_species(self):
         # self.frm_list.lw_species.currentRowChanged.disconnect(self.slt_model_changed)

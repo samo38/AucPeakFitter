@@ -92,15 +92,6 @@ class Ui_Frame(object):
 
         self.gridLayout.addWidget(self.pb_vis, 1, 0, 1, 1)
 
-        self.lb_warn = QLabel(self.frm_new)
-        self.lb_warn.setObjectName(u"lb_warn")
-        self.lb_warn.setMinimumSize(QSize(80, 25))
-        self.lb_warn.setMaximumSize(QSize(80, 25))
-        self.lb_warn.setStyleSheet(u"color: rgb(224, 27, 36);")
-        self.lb_warn.setAlignment(Qt.AlignCenter)
-
-        self.gridLayout.addWidget(self.lb_warn, 1, 1, 1, 1)
-
         self.lb_name = QLabel(self.frm_new)
         self.lb_name.setObjectName(u"lb_name")
         self.lb_name.setMinimumSize(QSize(80, 25))
@@ -130,6 +121,14 @@ class Ui_Frame(object):
         self.cmb_type.setMaximumSize(QSize(80, 25))
 
         self.gridLayout.addWidget(self.cmb_type, 3, 1, 1, 1)
+
+        self.pb_deflt = QPushButton(self.frm_new)
+        self.pb_deflt.setObjectName(u"pb_deflt")
+        icon3 = QIcon()
+        icon3.addFile(u":/Icon/Resources/Icons/keyboard_return_FILL0_wght400_GRAD0_opsz48.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.pb_deflt.setIcon(icon3)
+
+        self.gridLayout.addWidget(self.pb_deflt, 1, 1, 1, 1)
 
 
         self.horizontalLayout_2.addWidget(self.frm_new, 0, Qt.AlignLeft)
@@ -163,8 +162,8 @@ class Ui_Frame(object):
         self.pb_new.setText(QCoreApplication.translate("Frame", u"Add", None))
         self.pb_del.setText(QCoreApplication.translate("Frame", u"Delete", None))
         self.pb_vis.setText(QCoreApplication.translate("Frame", u"ON", None))
-        self.lb_warn.setText(QCoreApplication.translate("Frame", u"Not Ready", None))
         self.lb_name.setText(QCoreApplication.translate("Frame", u"Name:", None))
         self.lb_type.setText(QCoreApplication.translate("Frame", u"Type:", None))
+        self.pb_deflt.setText(QCoreApplication.translate("Frame", u"Default", None))
     # retranslateUi
 

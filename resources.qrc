@@ -3,6 +3,7 @@
     <file>Resources/Font/Heebo-VariableFont_wght.ttf</file>
   </qresource>
   <qresource prefix="Icon">
+    <file>Resources/Icons/keyboard_return_FILL0_wght400_GRAD0_opsz48.svg</file>
     <file>Resources/Icons/add_FILL0_wght400_GRAD0_opsz48.svg</file>
     <file>Resources/Icons/App_t.png</file>
     <file>Resources/Icons/cancel_FILL0_wght400_GRAD0_opsz48.svg</file>

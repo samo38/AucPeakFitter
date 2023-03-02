@@ -102,25 +102,25 @@ background-color: rgb(245,245,245);
   <customwidget>
    <class>ImportWidget</class>
    <extends>QFrame</extends>
-   <header>embed_widgets</header>
+   <header>import_widget</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>SpeciesList</class>
    <extends>QFrame</extends>
-   <header>embed_widgets</header>
+   <header>species_list_widget</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>SpeciesControl</class>
    <extends>QFrame</extends>
-   <header>embed_widgets</header>
+   <header>species_control_widget</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>PlotWidget</class>
    <extends>QFrame</extends>
-   <header>embed_widgets</header>
+   <header>plot_widget</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -18,7 +18,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QMainWindow,
     QSizePolicy, QWidget)
 
-from embed_widgets import (ImportWidget, PlotWidget, SpeciesControl, SpeciesList)
+from import_widget import ImportWidget
+from plot_widget import PlotWidget
+from species_control_widget import SpeciesControl
+from species_list_widget import SpeciesList
 import resources_rc
 
 class Ui_MainWindow(object):

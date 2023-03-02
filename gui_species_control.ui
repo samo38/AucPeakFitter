@@ -215,31 +215,6 @@ font-weight: normal;
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
-          <widget class="QLabel" name="lb_warn">
-           <property name="minimumSize">
-            <size>
-             <width>80</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>80</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">color: rgb(224, 27, 36);</string>
-           </property>
-           <property name="text">
-            <string>Not Ready</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="0">
           <widget class="QLabel" name="lb_name">
            <property name="minimumSize">
@@ -313,6 +288,17 @@ font-weight: normal;
              <width>80</width>
              <height>25</height>
             </size>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QPushButton" name="pb_deflt">
+           <property name="text">
+            <string>Default</string>
+           </property>
+           <property name="icon">
+            <iconset resource="resources.qrc">
+             <normaloff>:/Icon/Resources/Icons/keyboard_return_FILL0_wght400_GRAD0_opsz48.svg</normaloff>:/Icon/Resources/Icons/keyboard_return_FILL0_wght400_GRAD0_opsz48.svg</iconset>
            </property>
           </widget>
          </item>
