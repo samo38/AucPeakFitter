@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QGridLayout,
     QGroupBox, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QSizePolicy, QStackedWidget, QWidget)
 
-from embed_models import (ExponentialControl, GaussianControl)
+from functions_widgets import (ExponentialControl, GaussianControl)
 import resources_rc
 
 class Ui_Frame(object):
@@ -104,6 +104,7 @@ class Ui_Frame(object):
         self.le_name.setObjectName(u"le_name")
         self.le_name.setMinimumSize(QSize(80, 25))
         self.le_name.setMaximumSize(QSize(80, 25))
+        self.le_name.setReadOnly(True)
 
         self.gridLayout.addWidget(self.le_name, 2, 1, 1, 1)
 
@@ -150,7 +151,7 @@ class Ui_Frame(object):
 
         self.retranslateUi(Frame)
 
-        self.stacked.setCurrentIndex(1)
+        self.stacked.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(Frame)

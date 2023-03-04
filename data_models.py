@@ -33,20 +33,14 @@ class Exponential:
         self.decay = Params()
 
 
-class Model:
+class Function:
 
     def __init__(self, t: enum.Enum):
-        if t == Types.EMPTY:
-            self.params = None
-        elif t == Types.GAUSS:
-            self.params = Gaussian()
-        elif t == Types.EXP:
-            self.params = Exponential()
-        else:
-            raise IOError("input value not exist!")
         self.type = t
         self.name = ''
         self.visible = True
+        self.gauss = Gaussian()
+        self.exp = Exponential()
 
 
 class Data:
@@ -66,23 +60,23 @@ class Data:
         self.y_trim = y
 
 
-class DataModels:
+class DataModel:
 
     def __init__(self):
         self.data = Data()
-        self.models = []
+        self.model = []
         self.optimized = False
 
-    def append_model(self, model: Model):
+    def append_model(self, model: Function):
         if model.type != Types.EMPTY:
-            self.models.append(model)
+            self.model.append(model)
 
-    def set_model(self, n: int, model: Model):
+    def set_model(self, n: int, model: Function):
         if model.type != Types.EMPTY:
-            self.models[n] = model
+            self.model[n] = model
 
     def get_model(self, n: int):
-        return self.models[n]
+        return self.model[n]
 
     def set_data(self, data: Data):
         self.data = data
@@ -92,4 +86,4 @@ class DataModels:
 
     def clear(self):
         self.data = Data()
-        self.models = []
+        self.model = []

@@ -44,7 +44,7 @@
    <item alignment="Qt::AlignLeft">
     <widget class="QGroupBox" name="group">
      <property name="styleSheet">
-      <string notr="true">#le_cent_mm, #le_cent_val, #le_height, #le_sigma{
+      <string notr="true">#le_cent_mm, #le_cent_val, #le_amp, #le_sigma{
 font-weight: normal;
 }</string>
      </property>

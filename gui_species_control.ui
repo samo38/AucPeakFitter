@@ -251,6 +251,9 @@ font-weight: normal;
              <height>25</height>
             </size>
            </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item row="3" column="0">
@@ -308,7 +311,7 @@ font-weight: normal;
       <item>
        <widget class="QStackedWidget" name="stacked">
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="GaussianControl" name="wg_gaus"/>
         <widget class="ExponentialControl" name="wg_exp"/>
@@ -323,13 +326,13 @@ font-weight: normal;
   <customwidget>
    <class>GaussianControl</class>
    <extends>QWidget</extends>
-   <header>embed_models</header>
+   <header>functions_widgets</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>ExponentialControl</class>
    <extends>QWidget</extends>
-   <header>embed_models</header>
+   <header>functions_widgets</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

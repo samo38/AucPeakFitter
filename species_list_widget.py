@@ -9,51 +9,46 @@ from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
     QListWidget, QListWidgetItem, QPushButton, QSizePolicy, QFileDialog, QMessageBox,
     QSpinBox, QVBoxLayout, QWidget)
 from PySide6.QtCore import (Slot, Signal)
-import pyqtgraph
 import numpy as np
-from auc_data_io import AucRawData
-import gui_import
 import gui_species_list
-import gui_species_control
-import data_models as dms
 
 
 class SpeciesList(QFrame, gui_species_list.Ui_Frame):
 
-    sig_new_scan_id = Signal(int)
-    sig_new_species = Signal()
-    sig_species_id = Signal(int)
+    sig_scan_id = Signal(int)
+    sig_new_item = Signal()
+    sig_item_id = Signal(int)
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setupUi(self)
-        self.spin_box.valueChanged.connect(self.slt_new_sb_id)
-        self.lw_species.currentRowChanged.connect(self.slt_species_changed)
+        self.sb_scans.valueChanged.connect(self.slt_scan_id)
+        self.lw_items.currentRowChanged.connect(self.slt_item_changed)
 
     @Slot(int)
-    def slt_new_sb_id(self, n: int):
-        self.sig_new_scan_id.emit(n - 1)
+    def slt_scan_id(self, n: int):
+        self.sig_scan_id.emit(n - 1)
 
     @Slot(int)
-    def slt_species_changed(self, row):
-        n_items = self.lw_species.count()
+    def slt_item_changed(self, row):
+        n_items = self.lw_items.count()
         if row == (n_items - 1):
-            self.sig_new_species.emit()
+            self.sig_new_item.emit()
         else:
-            self.sig_species_id.emit(row)
+            self.sig_item_id.emit(row)
 
     def set_spin_box(self, n: int):
-        self.spin_box.valueChanged.disconnect(self.slt_new_sb_id)
-        self.spin_box.clear()
-        self.spin_box.setMinimum(1)
-        self.spin_box.setMaximum(n)
-        self.spin_box.valueChanged.connect(self.slt_new_sb_id)
-        self.spin_box.setValue(n)
+        self.sb_scans.valueChanged.disconnect(self.slt_scan_id)
+        self.sb_scans.clear()
+        self.sb_scans.setMinimum(1)
+        self.sb_scans.setMaximum(n)
+        self.sb_scans.valueChanged.connect(self.slt_scan_id)
+        self.sb_scans.setValue(n)
 
-    def set_species_list(self, items: list):
-        self.lw_species.currentRowChanged.disconnect(self.slt_species_changed)
-        self.lw_species.clear()
+    def set_items(self, items: list):
+        self.lw_items.currentRowChanged.disconnect(self.slt_item_changed)
+        self.lw_items.clear()
         for i in range(len(items)):
-            self.lw_species.addItem(items[i])
-        self.lw_species.currentRowChanged.connect(self.slt_species_changed)
+            self.lw_items.addItem(items[i])
+        self.lw_items.currentRowChanged.connect(self.slt_item_changed)
 

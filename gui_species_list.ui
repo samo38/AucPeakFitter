@@ -69,14 +69,14 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="label_1">
         <property name="text">
          <string>Scan Number:</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="spin_box"/>
+       <widget class="QSpinBox" name="sb_scans"/>
       </item>
      </layout>
     </widget>
@@ -106,14 +106,14 @@
        <number>0</number>
       </property>
       <item alignment="Qt::AlignHCenter">
-       <widget class="QLabel" name="lb_sp">
+       <widget class="QLabel" name="label_2">
         <property name="text">
          <string>List of Species</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QListWidget" name="lw_species"/>
+       <widget class="QListWidget" name="lw_items"/>
       </item>
      </layout>
     </widget>
@@ -143,7 +143,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QPushButton" name="pb_ctrl">
+       <widget class="QPushButton" name="pb_cntrl">
         <property name="minimumSize">
          <size>
           <width>20</width>
@@ -207,7 +207,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pb_rep">
+       <widget class="QPushButton" name="pb_report">
         <property name="minimumSize">
          <size>
           <width>80</width>

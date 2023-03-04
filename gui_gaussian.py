@@ -33,7 +33,7 @@ class Ui_Form(object):
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.group = QGroupBox(Form)
         self.group.setObjectName(u"group")
-        self.group.setStyleSheet(u"#le_cent_mm, #le_cent_val, #le_height, #le_sigma{\n"
+        self.group.setStyleSheet(u"#le_cent_mm, #le_cent_val, #le_amp, #le_sigma{\n"
 "font-weight: normal;\n"
 "}")
         self.gridLayout = QGridLayout(self.group)

@@ -9,12 +9,9 @@ from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
     QListWidget, QListWidgetItem, QPushButton, QSizePolicy, QFileDialog, QMessageBox,
     QSpinBox, QVBoxLayout, QWidget)
 from PySide6.QtCore import (Slot, Signal)
-import pyqtgraph
 import numpy as np
 from auc_data_io import AucRawData
 import gui_import
-import gui_species_list
-import gui_species_control
 import data_models as dms
 
 
@@ -59,8 +56,8 @@ class ImportWidget(QFrame, gui_import.Ui_Frame):
             data = dms.Data()
             data.set_raw(x_values, y_values[i])
             data.set_trim(x_values, y_values[i])
-            data_models = dms.DataModels()
-            data_models.data(data)
+            data_models = dms.DataModel()
+            data_models.set_data(data)
             all_data_models.append(data_models)
         self.sig_new_file.emit(all_data_models)
 

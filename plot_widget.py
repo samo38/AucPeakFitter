@@ -11,10 +11,6 @@ from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
 from PySide6.QtCore import (Slot, Signal)
 import pyqtgraph
 import numpy as np
-from auc_data_io import AucRawData
-import gui_import
-import gui_species_list
-import gui_species_control
 import data_models as dms
 
 
@@ -31,10 +27,7 @@ class PlotWidget(QFrame):
         self.setFrameShadow(QFrame.Raised)
         self.setLineWidth(1)
 
-        self.x_raw = None
-        self.y_raw = None
-        self.x_trim = None
-        self.y_trim = None
+        self.data = dms.Data()
         self.region_values = None
         self.line_value = None
 
@@ -92,20 +85,21 @@ class PlotWidget(QFrame):
         layout.addLayout(lyt_pb)
         self.setLayout(layout)
 
-        self.region_picker_import.sigRegionChanged.connect(self.update_trim)
-        self.pb_region.clicked.connect(self.update_region)
-        self.pb_set_region.clicked.connect(self.set_region)
+        self.region_picker_import.sigRegionChanged.connect(self.slt_update_trim)
+        self.pb_region.clicked.connect(self.slt_update_region)
+        self.pb_set_region.clicked.connect(self.slt_set_region)
 
     @Slot(object)
-    def update_trim(self):
+    def slt_update_trim(self):
         [min_val, max_val] = self.region_picker_import.getRegion()
-        ind = np.logical_and(self.x_raw >= min_val, self.x_raw <= max_val)
-        x_temp = self.x_raw[ind]
-        y_temp = self.y_raw[ind]
-        self.plot_trim(x_temp, y_temp)
+        x_raw = self.data.x_raw
+        ind = np.logical_and(x_raw >= min_val, x_raw <= max_val)
+        x_temp = x_raw[ind]
+        y_temp = self.data.y_raw[ind]
+        self.__plot_trim(x_temp, y_temp)
 
     @Slot(bool)
-    def update_region(self, checked):
+    def slt_update_region(self, checked):
         # self.pb_reg.setIconSize(QSize(16, 16))
         if checked:
             self.pb_region.setText("Cancel")
@@ -123,7 +117,7 @@ class PlotWidget(QFrame):
             self.pick_region_import(-1)
 
     @Slot()
-    def set_region(self):
+    def slt_set_region(self):
         self.pb_region.setText("Region")
         self.pb_region.setChecked(False)
         self.pb_region.setIcon(self.icon_region)
@@ -132,37 +126,26 @@ class PlotWidget(QFrame):
         self.pb_set_region.setEnabled(False)
         self.pick_region_import(0)
 
-    def set_data(self, x_raw: np.array, y_raw: np.array, x_trim: np.array, y_trim: np.array):
-        self.x_raw = x_raw
-        self.y_raw = y_raw
-        self.x_trim = x_trim
-        self.y_trim = y_trim
-        self.plot_raw()
-        self.plot_trim()
+    def __plot_raw(self):
+        self.curve_import.setData(self.data.x_raw, self.data.y_raw)
 
-    def get_data(self):
-        return self.x_raw, self.y_raw, self.x_trim, self.y_trim
-
-    def plot_raw(self):
-        self.curve_import.setData(self.x_raw, self.y_raw)
-
-    def plot_trim(self, x=None, y=None):
+    def __plot_trim(self, x=None, y=None):
         if (x is not None) and (y is not None):
             self.curve_trim.setData(x, y)
         else:
-            self.curve_trim.setData(self.x_trim, self.y_trim)
+            self.curve_trim.setData(self.data.x_trim, self.data.y_trim)
 
     def pick_region_import(self, state: int):
         if state == 1:  # connect picker
-            self.region_picker_import.setRegion([np.min(self.x_trim), np.max(self.x_trim)])
+            self.region_picker_import.setRegion([np.min(self.data.x_trim), np.max(self.data.x_trim)])
             self.plt_import.addItem(self.region_picker_import)
         elif state == -1:  # cancel and close piker
             self.plt_import.removeItem(self.region_picker_import)
-            self.plot_trim()
+            self.__plot_trim()
         elif state == 0:  # accept and close picker
             data = self.curve_trim.getData()
-            self.x_trim = data[0]
-            self.y_trim = data[1]
+            self.data.x_trim = data[0]
+            self.data.y_trim = data[1]
             self.plt_import.removeItem(self.region_picker_import)
             self.sig_data_updated.emit()
 
@@ -184,4 +167,16 @@ class PlotWidget(QFrame):
             self.plt_species.removeItem(self.line_picker_trim)
             self.sig_line_picked.emit()
 
+    def set_data(self, data: dms.Data):
+        self.data = data
+        self.__plot_raw()
+        self.__plot_trim()
 
+    def get_data(self):
+        return self.data
+
+    def get_region_values(self):
+        return self.region_values
+
+    def get_line_value(self):
+        return self.line_value

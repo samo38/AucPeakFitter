@@ -33,7 +33,7 @@ class Ui_Form(object):
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.group = QGroupBox(Form)
         self.group.setObjectName(u"group")
-        self.group.setStyleSheet(u"#le_ampl_val, #le_decay_val{\n"
+        self.group.setStyleSheet(u"#le_amp, #le_decay{\n"
 "font-weight: normal;\n"
 "}")
         self.gridLayout = QGridLayout(self.group)
@@ -58,21 +58,21 @@ class Ui_Form(object):
 
         self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
 
-        self.le_amp_val = QLineEdit(self.group)
-        self.le_amp_val.setObjectName(u"le_amp_val")
-        self.le_amp_val.setMinimumSize(QSize(50, 0))
-        self.le_amp_val.setMaximumSize(QSize(50, 16777215))
-        self.le_amp_val.setReadOnly(True)
+        self.le_amp = QLineEdit(self.group)
+        self.le_amp.setObjectName(u"le_amp")
+        self.le_amp.setMinimumSize(QSize(50, 0))
+        self.le_amp.setMaximumSize(QSize(50, 16777215))
+        self.le_amp.setReadOnly(True)
 
-        self.gridLayout.addWidget(self.le_amp_val, 0, 3, 1, 1)
+        self.gridLayout.addWidget(self.le_amp, 0, 3, 1, 1)
 
-        self.le_decay_val = QLineEdit(self.group)
-        self.le_decay_val.setObjectName(u"le_decay_val")
-        self.le_decay_val.setMinimumSize(QSize(50, 0))
-        self.le_decay_val.setMaximumSize(QSize(50, 16777215))
-        self.le_decay_val.setReadOnly(True)
+        self.le_decay = QLineEdit(self.group)
+        self.le_decay.setObjectName(u"le_decay")
+        self.le_decay.setMinimumSize(QSize(50, 0))
+        self.le_decay.setMaximumSize(QSize(50, 16777215))
+        self.le_decay.setReadOnly(True)
 
-        self.gridLayout.addWidget(self.le_decay_val, 1, 3, 1, 1)
+        self.gridLayout.addWidget(self.le_decay, 1, 3, 1, 1)
 
         self.fix_amp = QCheckBox(self.group)
         self.fix_amp.setObjectName(u"fix_amp")

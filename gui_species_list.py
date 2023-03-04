@@ -40,15 +40,15 @@ class Ui_Frame(object):
         self.horizontalLayout.setSpacing(1)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(20, 0, 20, 0)
-        self.label = QLabel(self.frm_scan)
-        self.label.setObjectName(u"label")
+        self.label_1 = QLabel(self.frm_scan)
+        self.label_1.setObjectName(u"label_1")
 
-        self.horizontalLayout.addWidget(self.label)
+        self.horizontalLayout.addWidget(self.label_1)
 
-        self.spin_box = QSpinBox(self.frm_scan)
-        self.spin_box.setObjectName(u"spin_box")
+        self.sb_scans = QSpinBox(self.frm_scan)
+        self.sb_scans.setObjectName(u"sb_scans")
 
-        self.horizontalLayout.addWidget(self.spin_box)
+        self.horizontalLayout.addWidget(self.sb_scans)
 
 
         self.verticalLayout_2.addWidget(self.frm_scan)
@@ -61,15 +61,15 @@ class Ui_Frame(object):
         self.verticalLayout.setSpacing(1)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.lb_sp = QLabel(self.frm_list)
-        self.lb_sp.setObjectName(u"lb_sp")
+        self.label_2 = QLabel(self.frm_list)
+        self.label_2.setObjectName(u"label_2")
 
-        self.verticalLayout.addWidget(self.lb_sp, 0, Qt.AlignHCenter)
+        self.verticalLayout.addWidget(self.label_2, 0, Qt.AlignHCenter)
 
-        self.lw_species = QListWidget(self.frm_list)
-        self.lw_species.setObjectName(u"lw_species")
+        self.lw_items = QListWidget(self.frm_list)
+        self.lw_items.setObjectName(u"lw_items")
 
-        self.verticalLayout.addWidget(self.lw_species)
+        self.verticalLayout.addWidget(self.lw_items)
 
 
         self.verticalLayout_2.addWidget(self.frm_list)
@@ -82,17 +82,17 @@ class Ui_Frame(object):
         self.horizontalLayout_2.setSpacing(1)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.pb_ctrl = QPushButton(self.frm_run)
-        self.pb_ctrl.setObjectName(u"pb_ctrl")
-        self.pb_ctrl.setMinimumSize(QSize(20, 20))
-        self.pb_ctrl.setMaximumSize(QSize(20, 20))
-        self.pb_ctrl.setStyleSheet(u"background-color: rgb(249, 240, 107);")
+        self.pb_cntrl = QPushButton(self.frm_run)
+        self.pb_cntrl.setObjectName(u"pb_cntrl")
+        self.pb_cntrl.setMinimumSize(QSize(20, 20))
+        self.pb_cntrl.setMaximumSize(QSize(20, 20))
+        self.pb_cntrl.setStyleSheet(u"background-color: rgb(249, 240, 107);")
         icon = QIcon()
         icon.addFile(u":/Icon/Resources/Icons/tune_FILL0_wght400_GRAD0_opsz48.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.pb_ctrl.setIcon(icon)
-        self.pb_ctrl.setIconSize(QSize(16, 16))
+        self.pb_cntrl.setIcon(icon)
+        self.pb_cntrl.setIconSize(QSize(16, 16))
 
-        self.horizontalLayout_2.addWidget(self.pb_ctrl)
+        self.horizontalLayout_2.addWidget(self.pb_cntrl)
 
         self.pb_run = QPushButton(self.frm_run)
         self.pb_run.setObjectName(u"pb_run")
@@ -106,17 +106,17 @@ class Ui_Frame(object):
 
         self.horizontalLayout_2.addWidget(self.pb_run)
 
-        self.pb_rep = QPushButton(self.frm_run)
-        self.pb_rep.setObjectName(u"pb_rep")
-        self.pb_rep.setMinimumSize(QSize(80, 25))
-        self.pb_rep.setMaximumSize(QSize(80, 25))
-        self.pb_rep.setStyleSheet(u"background-color: rgb(143, 240, 164);")
+        self.pb_report = QPushButton(self.frm_run)
+        self.pb_report.setObjectName(u"pb_report")
+        self.pb_report.setMinimumSize(QSize(80, 25))
+        self.pb_report.setMaximumSize(QSize(80, 25))
+        self.pb_report.setStyleSheet(u"background-color: rgb(143, 240, 164);")
         icon2 = QIcon()
         icon2.addFile(u":/Icon/Resources/Icons/text_snippet_FILL0_wght400_GRAD0_opsz48.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.pb_rep.setIcon(icon2)
-        self.pb_rep.setIconSize(QSize(16, 16))
+        self.pb_report.setIcon(icon2)
+        self.pb_report.setIconSize(QSize(16, 16))
 
-        self.horizontalLayout_2.addWidget(self.pb_rep)
+        self.horizontalLayout_2.addWidget(self.pb_report)
 
 
         self.verticalLayout_2.addWidget(self.frm_run)
@@ -129,10 +129,10 @@ class Ui_Frame(object):
 
     def retranslateUi(self, Frame):
         Frame.setWindowTitle(QCoreApplication.translate("Frame", u"Frame", None))
-        self.label.setText(QCoreApplication.translate("Frame", u"Scan Number:", None))
-        self.lb_sp.setText(QCoreApplication.translate("Frame", u"List of Species", None))
-        self.pb_ctrl.setText("")
+        self.label_1.setText(QCoreApplication.translate("Frame", u"Scan Number:", None))
+        self.label_2.setText(QCoreApplication.translate("Frame", u"List of Species", None))
+        self.pb_cntrl.setText("")
         self.pb_run.setText(QCoreApplication.translate("Frame", u"Run", None))
-        self.pb_rep.setText(QCoreApplication.translate("Frame", u"Report", None))
+        self.pb_report.setText(QCoreApplication.translate("Frame", u"Report", None))
     # retranslateUi
 

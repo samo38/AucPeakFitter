@@ -9,19 +9,17 @@ from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
     QListWidget, QListWidgetItem, QPushButton, QSizePolicy, QFileDialog, QMessageBox,
     QSpinBox, QVBoxLayout, QWidget)
 from PySide6.QtCore import (Slot, Signal)
-import pyqtgraph
 import numpy as np
-from auc_data_io import AucRawData
-import gui_import
-import gui_species_list
 import gui_species_control
 import data_models as dms
+import copy
 
 
 class SpeciesControl(QFrame, gui_species_control.Ui_Frame):
 
-    sig_pick_line = Signal(int, float)
-    sig_pick_region = Signal(int, float, float)
+    sig_delete = Signal()
+    sig_update = Signal()
+    sig_add = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -33,61 +31,92 @@ class SpeciesControl(QFrame, gui_species_control.Ui_Frame):
         self.icon_invis = QIcon()
         self.icon_invis.addFile(u":/Icon/Resources/Icons/visibility_off_FILL0_wght400_GRAD0_opsz48.svg",
                                 QSize(), QIcon.Normal, QIcon.Off)
-
+        self.state_new = True
+        self.sp_name = None
         self.cmb_type.clear()
         self.cmb_type.addItem("Gaussian")
         self.cmb_type.addItem("Exponential")
 
-        self.model = dms.Model(dms.Types.EMPTY)
+        self.func = dms.Function(dms.Types.EMPTY)
+        self.func_0 = dms.Function(dms.Types.EMPTY)
 
         self.vis_state = True
-        self.x_arr = None
-        self.lined_picked = None
-        self.region_picked = None
-        self.cmb_type.currentTextChanged.connect(self.slt_func_updated)
-        self.wg_gaus.pb_cent_val.clicked.connect(self.slt_set_gauss_cent)
+        self.cmb_type.currentTextChanged.connect(self.slt_change_function)
+        self.pb_deflt.clicked.connect(self.slt_default)
         self.pb_vis.clicked.connect(self.slt_update_vis)
+        self.pb_new.clicked.connect(self.slt_export)
         self.cmb_type.setCurrentIndex(0)
-        self.slt_func_updated('Gaussian')
+        self.slt_change_function('Gaussian')
 
     @Slot(str)
-    def slt_func_updated(self, text):
+    def slt_change_function(self, text):
         if text == 'Gaussian':
             self.stacked.setCurrentWidget(self.wg_gaus)
-            self.model = dms.Model(dms.Types.GAUSS)
+            self.func.type = dms.Types.GAUSS
         elif text == 'Exponential':
             self.stacked.setCurrentWidget(self.wg_exp)
-            self.model = dms.Model(dms.Types.EXP)
+            self.func.type = dms.Types.EXP
+        self.__fill_widget()
+        self.__update_le_name()
 
-    @Slot(bool)
-    def slt_set_gauss_cent(self, checked):
-        if checked:
-            self.wg_gaus.pb_cent_val.setText("Apply")
-            self.wg_gaus.pb_cent_val.setStyleSheet(u"background-color: rgb(246, 97, 81);")
-            # val = (self.x_arr[-1] - self.x_arr[0]) / 2.0
-            # val += self.x_arr[0]
-            val = 6.5
-            self.sig_pick_line.emit(1, val)
-            # self.wg_plot.pick_line_trim(1, val)
-        else:
-            self.wg_gaus.pb_cent_val.setText("Set")
-            self.wg_gaus.pb_cent_val.setStyleSheet(u"background-color: ;")
-            self.sig_pick_line.emit(0, 0)
-            # self.wg_plot.pick_line_trim(0, 0)
-            # val = self.wg_plot.picker_line_trim_val
-            self.sig_pick_line.emit(0, 0)
-            self.model.params.center = self.lined_picked
-            self.wg_gaus.le_cent_val.setText(f"{self.lined_picked: .3f}")
-            self.wg_gaus.le_cent_val.setCursorPosition(0)
+    @Slot()
+    def slt_default(self):
+        self.func = copy.deepcopy(self.func_0)
+        self.vis_state = self.func.visible
+        self.__update_cmb_type()
+        self.__fill_widget()
+        self.__update_vis_btn()
+        self.__update_le_name()
 
     @Slot(bool)
     def slt_update_vis(self):
         self.vis_state = not self.vis_state
-        self.change_vis_btn(self.vis_state)
-        self.model.visible = self.vis_state
+        self.__update_vis_btn()
+        self.func.visible = self.vis_state
+        self.__update_le_name()
 
-    def change_vis_btn(self, state: bool):
-        if state:
+    @Slot()
+    def slt_export(self):
+        if self.func.type == dms.Types.GAUSS:
+            params = self.wg_gaus.get_params()
+            if params is None:
+                return
+            self.func.gauss = params
+        elif self.func.type == dms.Types.EXP:
+            params = self.wg_exp.get_params()
+            if params is None:
+                return
+            self.func.exp = params
+        else:
+            return
+        if self.state_new:
+            self.sig_add.emit()
+        else:
+            self.sig_update.emit()
+
+    def __update_le_name(self):
+        le_name = ''
+        if self.vis_state:
+            if self.func.type == dms.Types.GAUSS:
+                le_name = self.sp_name
+            elif self.func.type == dms.Types.EXP:
+                le_name = "buffer"
+        else:
+            if self.func.type == dms.Types.GAUSS:
+                le_name = f"*{self.sp_name}*"
+            elif self.func.type == dms.Types.EXP:
+                le_name = "***buffer"
+        self.le_name.setText(le_name)
+        self.func.name = le_name
+
+    def __update_cmb_type(self):
+        if self.func.type == dms.Types.GAUSS:
+            self.cmb_type.setCurrentText(u"Gaussian")
+        elif self.func.type == dms.Types.EXP:
+            self.cmb_type.setCurrentText(u"Exponential")
+
+    def __update_vis_btn(self):
+        if self.vis_state:
             self.pb_vis.setText("ON")
             self.pb_vis.setIcon(self.icon_vis)
             self.pb_vis.setStyleSheet("background-color: ;")
@@ -96,107 +125,43 @@ class SpeciesControl(QFrame, gui_species_control.Ui_Frame):
             self.pb_vis.setIcon(self.icon_invis)
             self.pb_vis.setStyleSheet("background-color: rgb(220,220,220);")
 
-    def set_model(self, model=None):
-        if model is None:
-            self.model = dms.Model(dms.Types.GAUSS)
-            self.cmb_type.setCurrentIndex(0)
-            self.fill_gauss()
+    def __fill_widget(self):
+        if self.func.type == dms.Types.GAUSS:
+            self.wg_gaus.fill_widget(self.func.gauss)
+        elif self.func.type == dms.Types.EXP:
+            self.wg_exp.fill_widget(self.func.exp)
+
+    def __set_left_panel(self, new: bool):
+        if new:
+            self.pb_del.setEnabled(False)
+            self.pb_new.setText("Add")
+            self.pb_new.setStyleSheet("background-color: rgb(143, 240, 164);")
+            self.state_new = True
         else:
-            if model.type == dms.Types.EMPTY:
-                self.set_model(None)
-                return
-            self.model = model
-            if model.type == dms.Types.GAUSS:
-                self.fill_gauss()
-            elif model.type == dms.Types.EXP:
-                self.fill_exp()
-        self.vis_state = self.model.visible
-        self.le_name.setText(self.model.name)
-        self.change_vis_btn(self.vis_state)
+            self.pb_del.setEnabled(False)
+            self.pb_del.setStyleSheet("background-color: rgb(246, 97, 81);")
+            self.pb_new.setText("Update")
+            self.pb_new.setStyleSheet("background-color: rgb(249, 240, 107);")
+            self.state_new = False
 
-    def get_model(self):
-        return self.model
-
-    def fill_gauss(self):
-        amp_fixed = self.model.params.amplitude.fixed
-        amp_val = self.model.params.amplitude.value
-
-        cen_fixed = self.model.params.center.fixed
-        cen_val = self.model.params.center.value
-        cen_min = self.model.params.center.min
-        cen_max = self.model.params.center.max
-
-        sig_fixed = self.model.params.sigma.fixed
-        sig_val = self.model.params.sigma.value
-        sig_bound = self.model.params.sigma.bound
-
-        if amp_fixed:
-            self.wg_gaus.fix_amp.setChecked(True)
+    def setup(self, x_arr: np.array, index: int, func=None):
+        self.wg_gaus.set_min_mid_max(x_arr)
+        if func is None:
+            self.func = dms.Function(dms.Types.GAUSS)
+            self.func_0 = dms.Function(dms.Types.GAUSS)
+            self.__set_left_panel(new=True)
+            self.sp_name = f"{index}-species"
+            self.le_name.setText(self.sp_name)
         else:
-            self.wg_gaus.fix_amp.setChecked(False)
+            self.func = copy.deepcopy(func)
+            self.func_0 = copy.deepcopy(func)
+            self.__set_left_panel(new=False)
+            self.le_name.setText(self.func.name)
+        self.vis_state = self.func.visible
+        self.__update_vis_btn()
+        self.__update_cmb_type()
+        self.__fill_widget()
 
-        if cen_fixed:
-            self.wg_gaus.fix_center.setChecked(True)
-        else:
-            self.wg_gaus.fix_center.setChecked(False)
-
-        if sig_fixed:
-            self.wg_gaus.fix_sigma.setChecked(False)
-        else:
-            self.wg_gaus.fix_sigma.setChecked(False)
-
-        if amp_val is None:
-            self.wg_gaus.le_amp.clear()
-        else:
-            self.wg_gaus.le_amp.setText(f"{amp_val: .3f}")
-
-        if cen_val is None:
-            self.wg_gaus.le_cent_val.clear()
-        else:
-            self.wg_gaus.le_cent_val.setText(f"{cen_val: .3f}")
-
-        if (cen_max is None) or (cen_min is None):
-            self.wg_gaus.le_cent_mm.clear()
-        else:
-            self.wg_gaus.le_cent_mm.setText(f"{cen_min: .3f}-{cen_max: .3f}")
-
-        if sig_val is None:
-            self.wg_gaus.le_sigma.clear()
-        else:
-            self.wg_gaus.le_sigma.setText(f"{sig_val: .3f}")
-
-        if sig_bound:
-            self.wg_gaus.bound_sigma.setChecked(True)
-        else:
-            self.wg_gaus.bound_sigma.setChecked(False)
-
-    def fill_exp(self):
-        amp_fixed = self.model.params.amplitude.fixed
-        amp_val = self.model.params.amplitude.value
-
-        dec_fixed = self.model.params.center.fixed
-        dec_val = self.model.params.center.value
-
-        if amp_fixed:
-            self.wg_exp.fix_amp.setChecked(True)
-        else:
-            self.wg_exp.fix_amp.setChecked(False)
-
-        if dec_fixed:
-            self.wg_exp.fix_amp.setChecked(True)
-        else:
-            self.wg_exp.fix_amp.setChecked(False)
-
-        if amp_val is None:
-            self.wg_exp.le_ampl_val.clear()
-        else:
-            self.wg_exp.le_ampl_val.setText(f"{amp_val: .3f}")
-
-        if dec_val is None:
-            self.wg_exp.le_decay_val.clear()
-        else:
-            self.wg_exp.le_decay_val.setText(f"{dec_val: .3f}")
-
-    def set_x_arr(self, x_arr: np.array):
-        self.x_arr = x_arr
+    def get_func(self):
+        return self.func
 
