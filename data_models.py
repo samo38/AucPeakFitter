@@ -50,6 +50,9 @@ class Data:
         self.y_raw = None
         self.x_trim = None
         self.y_trim = None
+        self.x_model = None
+        self.y_model = None
+        self.residual = None
 
     def set_raw(self, x: np.array, y: np.array):
         self.x_raw = x
@@ -65,6 +68,7 @@ class DataModel:
     def __init__(self):
         self.data = Data()
         self.model = []
+        self.next_index = 1
         self.optimized = False
 
     def append_model(self, model: Function):

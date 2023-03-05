@@ -45,6 +45,7 @@ class SpeciesControl(QFrame, gui_species_control.Ui_Frame):
         self.pb_deflt.clicked.connect(self.slt_default)
         self.pb_vis.clicked.connect(self.slt_update_vis)
         self.pb_new.clicked.connect(self.slt_export)
+        self.pb_del.clicked.connect(self.slt_delete)
         self.cmb_type.setCurrentIndex(0)
         self.slt_change_function('Gaussian')
 
@@ -82,11 +83,15 @@ class SpeciesControl(QFrame, gui_species_control.Ui_Frame):
             if params is None:
                 return
             self.func.gauss = params
+            self.func.name = self.le_name.text()
+            self.func.visible = self.vis_state
         elif self.func.type == dms.Types.EXP:
             params = self.wg_exp.get_params()
             if params is None:
                 return
             self.func.exp = params
+            self.func.name = self.le_name.text()
+            self.func.visible = self.vis_state
         else:
             return
         if self.state_new:
@@ -94,18 +99,24 @@ class SpeciesControl(QFrame, gui_species_control.Ui_Frame):
         else:
             self.sig_update.emit()
 
+    @Slot()
+    def slt_delete(self):
+        state = QMessageBox.question(self, "Warning!", "Are you sure to delete the species?")
+        if state == QMessageBox.Yes:
+            self.sig_delete.emit()
+
     def __update_le_name(self):
         le_name = ''
         if self.vis_state:
             if self.func.type == dms.Types.GAUSS:
                 le_name = self.sp_name
             elif self.func.type == dms.Types.EXP:
-                le_name = "buffer"
+                le_name = "Buffer"
         else:
             if self.func.type == dms.Types.GAUSS:
-                le_name = f"*{self.sp_name}*"
+                le_name = f"* {self.sp_name} *"
             elif self.func.type == dms.Types.EXP:
-                le_name = "***buffer"
+                le_name = "* Buffer *"
         self.le_name.setText(le_name)
         self.func.name = le_name
 
@@ -134,11 +145,12 @@ class SpeciesControl(QFrame, gui_species_control.Ui_Frame):
     def __set_left_panel(self, new: bool):
         if new:
             self.pb_del.setEnabled(False)
+            self.pb_del.setStyleSheet("")
             self.pb_new.setText("Add")
             self.pb_new.setStyleSheet("background-color: rgb(143, 240, 164);")
             self.state_new = True
         else:
-            self.pb_del.setEnabled(False)
+            self.pb_del.setEnabled(True)
             self.pb_del.setStyleSheet("background-color: rgb(246, 97, 81);")
             self.pb_new.setText("Update")
             self.pb_new.setStyleSheet("background-color: rgb(249, 240, 107);")
@@ -150,7 +162,7 @@ class SpeciesControl(QFrame, gui_species_control.Ui_Frame):
             self.func = dms.Function(dms.Types.GAUSS)
             self.func_0 = dms.Function(dms.Types.GAUSS)
             self.__set_left_panel(new=True)
-            self.sp_name = f"{index}-species"
+            self.sp_name = f"Species {index}"
             self.le_name.setText(self.sp_name)
         else:
             self.func = copy.deepcopy(func)

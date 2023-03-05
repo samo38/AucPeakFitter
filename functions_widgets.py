@@ -1,4 +1,3 @@
-import numpy as np
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect, QDir,
     QSize, QTime, QUrl, Qt)
@@ -10,6 +9,8 @@ from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
     QListWidget, QListWidgetItem, QPushButton, QSizePolicy, QFileDialog, QMessageBox,
     QSpinBox, QVBoxLayout, QWidget)
 from PySide6.QtCore import (Slot, Signal)
+import numpy as np
+import copy
 import gui_gaussian
 import gui_exponential
 import data_models as dms
@@ -68,7 +69,10 @@ class GaussianControl(QWidget, gui_gaussian.Ui_Form):
         if checked:
             self.pb_cent_val.setText("Apply")
             self.pb_cent_val.setStyleSheet(u"background-color: rgb(246, 97, 81);")
-            self.sig_pick_line.emit(1, self.x_mid)
+            if self.line is None:
+                self.sig_pick_line.emit(1, self.x_mid)
+            else:
+                self.sig_pick_line.emit(1, self.line)
         else:
             self.pb_cent_val.setText("Set")
             self.pb_cent_val.setStyleSheet(u"background-color: ;")
@@ -82,7 +86,10 @@ class GaussianControl(QWidget, gui_gaussian.Ui_Form):
         if checked:
             self.pb_cent_mm.setText("Apply")
             self.pb_cent_mm.setStyleSheet(u"background-color: rgb(246, 97, 81);")
-            self.sig_pick_region.emit(1, self.x_min, self.x_max)
+            if self.region is None:
+                self.sig_pick_region.emit(1, self.x_min, self.x_max)
+            else:
+                self.sig_pick_region.emit(1, self.region[0], self.region[1])
         else:
             self.pb_cent_mm.setText("Set")
             self.pb_cent_mm.setStyleSheet(u"background-color: ;")
@@ -106,7 +113,7 @@ class GaussianControl(QWidget, gui_gaussian.Ui_Form):
         self.region = values
 
     def fill_widget(self, func: dms.Gaussian):
-        self.gauss = func
+        self.gauss = copy.deepcopy(func)
         amp_fixed = self.gauss.amplitude.fixed
         amp_val = self.gauss.amplitude.value
 
@@ -133,11 +140,14 @@ class GaussianControl(QWidget, gui_gaussian.Ui_Form):
             self.le_cent_val.clear()
         else:
             self.le_cent_val.setText(f"{cen_val: .3f}")
+        self.line = cen_val
 
+        self.region = None
         if (cen_max is None) or (cen_min is None):
             self.le_cent_mm.clear()
         else:
             self.le_cent_mm.setText(f"{cen_min: .3f}-{cen_max: .3f}")
+            self.region = (cen_min, cen_max)
 
         if sigma_val is None:
             self.le_sigma.clear()
@@ -168,16 +178,16 @@ class GaussianControl(QWidget, gui_gaussian.Ui_Form):
         self.gauss.center.value = self.line
         self.gauss.center.min = self.region[0]
         self.gauss.center.max = self.region[1]
-        self.gauss.center.fixed = self.fix_center.checkState() == Qt.Checked.value
+        self.gauss.center.fixed = self.fix_center.isChecked()
 
-        self.gauss.sigma.fixed = self.fix_sigma.checkState() == Qt.Checked.value
-        self.gauss.sigma.bound = self.bound_sigma.checkState() == Qt.Checked.value
+        self.gauss.sigma.fixed = self.fix_sigma.isChecked()
+        self.gauss.sigma.bound = self.bound_sigma.isChecked()
         self.gauss.sigma.value = sigma_val
 
-        self.gauss.amplitude.fixed = self.fix_sigma.checkState() == Qt.Checked.value
+        self.gauss.amplitude.fixed = self.fix_sigma.isChecked()
         self.gauss.amplitude.value = amplitude_val
 
-        return self.gauss
+        return copy.deepcopy(self.gauss)
 
 
 class ExponentialControl(QWidget, gui_exponential.Ui_Form):
@@ -210,7 +220,7 @@ class ExponentialControl(QWidget, gui_exponential.Ui_Form):
             self.le_decay.setReadOnly(False)
 
     def fill_widget(self, func: dms.Exponential):
-        self.exp = func
+        self.exp = copy.deepcopy(func)
         amp_fixed = self.exp.amplitude.fixed
         amp_val = self.exp.amplitude.value
 
@@ -252,6 +262,6 @@ class ExponentialControl(QWidget, gui_exponential.Ui_Form):
         self.exp.decay.fixed = self.fix_decay.checkState() == Qt.Checked.value
         self.exp.decay.value = decay_val
 
-        return self.exp
+        return copy.deepcopy(self.exp)
 
 
