@@ -62,6 +62,11 @@ class Data:
         self.x_trim = x
         self.y_trim = y
 
+    def clear_modeled(self):
+        self.x_model = None
+        self.y_model = None
+        self.residual = None
+
 
 class DataModel:
 
@@ -69,25 +74,3 @@ class DataModel:
         self.data = Data()
         self.model = []
         self.next_index = 1
-        self.optimized = False
-
-    def append_model(self, model: Function):
-        if model.type != Types.EMPTY:
-            self.model.append(model)
-
-    def set_model(self, n: int, model: Function):
-        if model.type != Types.EMPTY:
-            self.model[n] = model
-
-    def get_model(self, n: int):
-        return self.model[n]
-
-    def set_data(self, data: Data):
-        self.data = data
-
-    def get_data(self):
-        return self.data
-
-    def clear(self):
-        self.data = Data()
-        self.model = []

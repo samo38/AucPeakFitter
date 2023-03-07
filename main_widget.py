@@ -29,15 +29,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.species_id = None
         self.line = None
         self.region = None
-        # self.pb_set_reg.setEnabled(False)
 
         #  import frame
         self.frm_open.sig_new_file.connect(self.slt_new_file)
 
         # list frame
         self.frm_list.sig_scan_id.connect(self.slt_new_scan)
-        self.frm_list.sig_item_id.connect(self.slt_setup_species)
-        self.frm_list.sig_new_item.connect(self.slt_setup_new_species)
+        self.frm_list.sig_item_id.connect(self.slt_species)
+        self.frm_list.sig_new_item.connect(self.slt_new_species)
 
         # plot frame
         self.frm_plot.sig_data_updated.connect(self.slt_update_data)
@@ -67,22 +66,31 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.scan_id = scan_id
         self.frm_open.update_info(scan_id)
         data_model = self.all_data_model[self.scan_id]
-        self.frm_plot.set_data(data_model.data)
-        sp_list = self.__get_sp_list()
-        self.frm_list.set_items(sp_list)
+        self.frm_plot.plot_data(data_model.data)
+        self._reset_sp_list()
 
     @Slot(int)
-    def slt_setup_species(self, func_id):
+    def slt_species(self, func_id):
         self.species_id = func_id
         data_model = self.all_data_model[self.scan_id]
+        if data_model.model[func_id].type == dms.Types.GAUSS:
+            x1 = data_model.model[func_id].gauss.center.min
+            x2 = data_model.model[func_id].gauss.center.value
+            x3 = data_model.model[func_id].gauss.center.max
+        else:
+            x1 = None
+            x2 = None
+            x3 = None
+        self.frm_plot.plot_data(data_model.data, func_id, x1, x2, x3)
         x_arr = data_model.data.x_trim
         self.frm_ctrl.setup(x_arr, data_model.next_index, data_model.model[func_id])
         self.frm_ctrl.setEnabled(True)
 
     @Slot()
-    def slt_setup_new_species(self):
+    def slt_new_species(self):
         data_model = self.all_data_model[self.scan_id]
         x_arr = data_model.data.x_trim
+        self.frm_plot.plot_data(data_model.data)
         self.frm_ctrl.setup(x_arr, data_model.next_index)
         self.frm_ctrl.setEnabled(True)
 
@@ -90,6 +98,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def slt_update_data(self):
         data = self.frm_plot.get_data()
         self.all_data_model[self.scan_id].data = data
+        self._reset_sp_list()
 
     @Slot()
     def slt_line_picked(self):
@@ -111,23 +120,33 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     @Slot()
     def slt_add_species(self):
+        data = self.all_data_model[self.scan_id].data
+        data.clear_modeled()
         func = self.frm_ctrl.get_func()
         model = self.all_data_model[self.scan_id].model
         model.append(func)
-        self.__reset_sp_list()
+        self._reset_sp_list()
+        n = self.frm_list.lw_items.count() - 1
+        self.frm_list.lw_items.setCurrentRow(n)
 
     @Slot()
     def slt_delete_species(self):
+        data = self.all_data_model[self.scan_id].data
+        data.clear_modeled()
         model = self.all_data_model[self.scan_id].model
         model.remove(model[self.species_id])
-        self.__reset_sp_list()
+        self._reset_sp_list()
+        self.frm_list.lw_items.setCurrentRow(0)
 
     @Slot()
     def slt_update_species(self):
+        data = self.all_data_model[self.scan_id].data
+        data.clear_modeled()
         func = self.frm_ctrl.get_func()
         model = self.all_data_model[self.scan_id].model
         model[self.species_id] = func
-        self.__reset_sp_list()
+        self._reset_sp_list()
+        self.slt_species(self.species_id)
 
     @Slot()
     def slt_run(self):
@@ -135,9 +154,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         fm.eval_components()
         dm = fm.get_data_model()
         self.all_data_model[self.scan_id] = dm
-        self.frm_plot.set_data(dm.get_data())
+        self.frm_list.lw_items.setCurrentRow(0)
 
-    def __get_sp_list(self):
+    def _get_sp_list(self):
         data_model = self.all_data_model[self.scan_id]
         sp_list = []
         n_sp = len(data_model.model)
@@ -147,16 +166,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if data_model.model[i].gauss.sigma.bound is True:
                     name += " - bound"
             sp_list.append(name)
-        sp_list.append(":::::: New Species ::::::")
+        sp_list.append(":::::::::: New Species ::::::::::")
         return sp_list
 
-    def __check_all_functions(self):
+    def _check_all_functions(self):
         data_model = self.all_data_model[self.scan_id]
         model = copy.deepcopy(data_model.model)
-        model_out = []
+        gauss_model = []
         buffer_state = False
         buffer = None
-        idx = 1
+        cent_vals = []
         for i in range(len(model)):
             # func = dms.Function(dms.Types.GAUSS)
             func = model[i]
@@ -172,21 +191,28 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     QMessageBox.warning(self, "Warning!", "A buffer species is already set!")
             elif func.type == dms.Types.GAUSS:
                 tf = copy.deepcopy(func)
-                if tf.visible:
-                    tf.name = f"Species {idx}"
-                else:
-                    tf.name = f"**Species {idx}**"
-                idx += 1
-                model_out.append(tf)
+                cent_vals.append(tf.gauss.center.value)
+                gauss_model.append(tf)
+
+        cent_vals = np.array(cent_vals)
+        arg_sort = np.argsort(cent_vals)
+        model_out = []
+        counter = 1
+        for i in arg_sort:
+            if gauss_model[i].visible:
+                gauss_model[i].name = f"Species {counter}"
+            else:
+                gauss_model[i].name = f"**Species {counter}**"
+            counter += 1
+            model_out.append(gauss_model[i])
         if buffer is not None:
             model_out = [buffer] + model_out
-        data_model.next_index = idx
-        data_model.optimized = False
+        data_model.next_index = counter
         data_model.model = model_out
 
-    def __reset_sp_list(self):
-        self.__check_all_functions()
-        sp_list = self.__get_sp_list()
+    def _reset_sp_list(self):
+        self._check_all_functions()
+        sp_list = self._get_sp_list()
         self.frm_list.set_items(sp_list)
         self.frm_ctrl.setEnabled(False)
 

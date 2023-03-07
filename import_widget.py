@@ -57,7 +57,7 @@ class ImportWidget(QFrame, gui_import.Ui_Frame):
             data.set_raw(x_values, y_values[i])
             data.set_trim(x_values, y_values[i])
             data_models = dms.DataModel()
-            data_models.set_data(data)
+            data_models.data = data
             all_data_models.append(data_models)
         self.sig_new_file.emit(all_data_models)
 

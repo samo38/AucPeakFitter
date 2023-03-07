@@ -32,6 +32,9 @@ class PlotWidget(QFrame):
         self.data = dms.Data()
         self.region_values = None
         self.line_value = None
+        self.x_1 = None
+        self.x_2 = None
+        self.x_3 = None
 
         plt_win = pyqtgraph.GraphicsLayoutWidget()
         # self.plt_species = plt_win.addPlot(title="Trimmed & Decomposed")  # PlotItem
@@ -74,23 +77,15 @@ class PlotWidget(QFrame):
         lyt_pb.addWidget(self.pb_region)
         lyt_pb.addWidget(self.pb_set_region)
 
-        self.curve_import = self.plt_import.plot(pen='y')  # PlotDataItem
-        self.curve_trim = self.plt_species.plot(pen='y')
-        self.curve_sp_bold = self.plt_species.plot(pen='cyan')
-        self.curve_sp_min = pyqtgraph.InfiniteLine(pen="cyan", movable=False)
-        self.curve_sp_max = pyqtgraph.InfiniteLine(pen="cyan", movable=False)
-        self.curve_sp_cen = pyqtgraph.InfiniteLine(pen="cyan", movable=False)
-        self.curve_species = []
+        pen = pyqtgraph.mkPen(color='y', width=2)
+        self.curve_import = self.plt_import.plot(pen=pen)  # PlotDataItem
+        self.curve_trim = self.plt_species.plot(pen=pen)
+        self.curve_raw = self.plt_model.plot(pen=pen)
 
-        self.curve_raw = self.plt_model.plot(pen='y')
-        self.curve_model = self.plt_model.plot(pen='r')
-        self.curve_residue = self.plt_error.plot(pen='g')
-        self.curve_model_data = self.plt_model.plot(pen='y')
-        self.curve_model_fit = self.plt_model.plot(pen='r')
-
-        self.region_picker_import = pyqtgraph.LinearRegionItem(pen="white")
-        self.region_picker_trim = pyqtgraph.LinearRegionItem(pen="white")
-        self.line_picker_trim = pyqtgraph.InfiniteLine(pen="white", movable=True)
+        pen = pyqtgraph.mkPen(color='w', width=2)
+        self.region_picker_import = pyqtgraph.LinearRegionItem(pen=pen)
+        self.region_picker_trim = pyqtgraph.LinearRegionItem(pen=pen)
+        self.line_picker_trim = pyqtgraph.InfiniteLine(pen=pen, movable=True)
         # self.picker_raw.setZValue(-10)
 
         layout = QHBoxLayout()
@@ -111,7 +106,8 @@ class PlotWidget(QFrame):
         ind = np.logical_and(x_raw >= min_val, x_raw <= max_val)
         x_temp = x_raw[ind]
         y_temp = self.data.y_raw[ind]
-        self.__plot_trim(x_temp, y_temp)
+        self.curve_trim.setData(x_temp, y_temp)
+        self.curve_raw.setData(x_temp, y_temp)
 
     @Slot(bool)
     def slt_update_region(self, checked):
@@ -122,14 +118,14 @@ class PlotWidget(QFrame):
             self.pb_region.setStyleSheet(u"background-color: rgb(246, 97, 81);")
             self.pb_set_region.setStyleSheet(u"background-color: rgb(143, 240, 164);")
             self.pb_set_region.setEnabled(True)
-            self.pick_region_import(1)
+            self._pick_region_import(1)
         else:
             self.pb_region.setText("Region")
             self.pb_region.setIcon(self.icon_region)
             self.pb_region.setStyleSheet(u"background-color: rgb(249, 240, 107);")
             self.pb_set_region.setStyleSheet(u"")
             self.pb_set_region.setEnabled(False)
-            self.pick_region_import(-1)
+            self._pick_region_import(-1)
 
     @Slot()
     def slt_set_region(self):
@@ -139,24 +135,9 @@ class PlotWidget(QFrame):
         self.pb_region.setStyleSheet(u"background-color: rgb(249, 240, 107);")
         self.pb_set_region.setStyleSheet(u"")
         self.pb_set_region.setEnabled(False)
-        self.pick_region_import(0)
+        self._pick_region_import(0)
 
-    def __plot_raw(self):
-        self.curve_import.setData(self.data.x_raw, self.data.y_raw)
-
-    def __plot_trim(self, x=None, y=None):
-        if (x is not None) and (y is not None):
-            self.curve_trim.setData(x, y)
-            self.curve_raw.setData(x, y)
-        else:
-            self.curve_trim.setData(self.data.x_trim, self.data.y_trim)
-            self.curve_raw.setData(self.data.x_trim, self.data.y_trim)
-
-    def __plot_model(self):
-        if self.data.y_model is not None:
-            self.curve_model.setData(self.data.x_model, self.data.y_model[-1])
-
-    def pick_region_import(self, state: int):
+    def _pick_region_import(self, state: int):
         if state == 1:  # connect picker
             min_x = np.min(self.data.x_trim)
             max_x = np.max(self.data.x_trim)
@@ -164,7 +145,8 @@ class PlotWidget(QFrame):
             self.plt_import.addItem(self.region_picker_import)
         elif state == -1:  # cancel and close piker
             self.plt_import.removeItem(self.region_picker_import)
-            self.__plot_trim()
+            self.curve_trim.setData(self.data.x_trim, self.data.y_trim)
+            self.curve_raw.setData(self.data.x_trim, self.data.y_trim)
         elif state == 0:  # accept and close picker
             data = self.curve_trim.getData()
             self.data.x_trim = data[0]
@@ -190,67 +172,71 @@ class PlotWidget(QFrame):
             self.plt_species.removeItem(self.line_picker_trim)
             self.sig_line_picked.emit()
 
-    def clear_sp_param(self):
-        for item in self.plt_species.listDataItems():
-            if item == self.curve_sp_min:
-                self.plt_species.removeItem(self.curve_sp_min)
-                break
-        for item in self.plt_species.listDataItems():
-            if item == self.curve_sp_max:
-                self.plt_species.removeItem(self.curve_sp_max)
-                break
-        for item in self.plt_species.listDataItems():
-            if item == self.curve_sp_cen:
-                self.plt_species.removeItem(self.curve_sp_cen)
-                break
+    def _plot_species(self, index=None):
+        plot_region = True
+        if self.data.y_model is not None:
+            if self.data.y_model[index] is not None:
+                brush = pyqtgraph.mkBrush(color='magenta')
+                # brush.setStyle(Qt.BrushStyle.BDiagPattern)
+                brush.setStyle(Qt.BrushStyle.DiagCrossPattern)
+                pen = pyqtgraph.mkPen(color='magenta', width=2)
+                curve = self.plt_species.plot(pen=pen, fillLevel=0)
+                curve.setBrush(brush)
+                curve.setData(self.data.x_model, self.data.y_model[index])
+                plot_region = False
+            for i in range(len(self.data.y_model) - 1):
+                if self.data.y_model[i] is not None:
+                    curve = self.plt_species.plot(pen=pyqtgraph.mkPen(color='magenta', width=2))
+                    curve.setData(self.data.x_model, self.data.y_model[i])
+        if (self.x_1 is None) or (self.x_2 is None) or (self.x_3 is None):
+            plot_region = False
+        if plot_region:
+            pen = pyqtgraph.mkPen(color='cyan', width=1, style=Qt.DotLine)
+            curve_1 = pyqtgraph.InfiniteLine(pen=pen, movable=False)
+            self.plt_species.addItem(curve_1)
+            curve_1.setValue(self.x_1)
+            pen.setStyle(Qt.SolidLine)
+            curve_2 = pyqtgraph.InfiniteLine(pen=pen, movable=False)
+            self.plt_species.addItem(curve_2)
+            curve_2.setValue(self.x_2)
+            pen.setStyle(Qt.DotLine)
+            curve_3 = pyqtgraph.InfiniteLine(pen=pen, movable=False)
+            self.plt_species.addItem(curve_3)
+            curve_3.setValue(self.x_3)
 
-    def plot_sp_param(self, center: float, x_min: float, x_max: float):
-        self.clear_sp_param()
-        self.plt_species.addItem(self.curve_sp_min)
-        self.plt_species.addItem(self.curve_sp_max)
-        self.plt_species.addItem(self.curve_sp_cen)
-        self.curve_sp_cen.setValue(center)
-        self.curve_sp_min.setValue(x_min)
-        self.curve_sp_max.setValue(x_max)
-
-    def clear_sp_bold(self):
-        for item in self.plt_species.listDataItems():
-            if item == self.curve_sp_bold:
-                self.plt_species.removeItem(self.curve_sp_bold)
-                break
-
-    def plot_sp_bold(self, idx: int):
-        self.clear_sp_bold()
-        self.plt_species.addItem(self.curve_sp_bold)
-        self.curve_sp_bold.setData(self.data.x_model, self.data.y_model[idx])
-
-    def clear_species(self):
-        for i in range(len(self.curve_species)):
-            for item in self.plt_species.listDataItems():
-                if item == self.curve_species[i]:
-                    self.plt_species.removeItem(self.curve_species[i])
-                    break
-        self.curve_species.clear()
-
-    def plot_species(self):
-        x_model = self.data.x_model
-        y_model = self.data.y_model
-        if x_model is None or y_model is None:
-            return
-        for i in range(len(y_model) - 1):
-            curve = self.plt_species.plot(pen='magenta')
-            self.curve_species.append(curve)
-            curve.setData(x_model, y_model[i])
-
-    def set_data(self, data: dms.Data):
+    def plot_data(self, data: dms.Data, index=None, x1=None, x2=None, x3=None):
         self.data = copy.deepcopy(data)
-        self.__plot_raw()
-        self.__plot_trim()
-        self.__plot_model()
+        self.plt_import.clear()
+        self.plt_species.clear()
+        self.plt_model.clear()
+        self.plt_error.clear()
+        self.plt_import.addItem(self.curve_import)
+        self.plt_species.addItem(self.curve_trim)
+        self.plt_model.addItem(self.curve_raw)
+        self.x_1 = x1
+        self.x_2 = x2
+        self.x_3 = x3
+        self.curve_import.setData(self.data.x_raw, self.data.y_raw)
+        self.curve_trim.setData(self.data.x_trim, self.data.y_trim)
+        self.curve_raw.setData(self.data.x_trim, self.data.y_trim)
+        if self.data.y_model is not None:
+            curve_m = self.plt_model.plot(pen=pyqtgraph.mkPen(color='magenta', width=2))
+            curve_r = self.plt_error.plot(pen='g')
+            curve_m.setData(self.data.x_model, self.data.y_model[-1])
+            curve_r.setData(self.data.x_trim, self.data.residual)
+            rmsd = np.sqrt(np.mean(self.data.residual ** 2))
+            x_min = np.min(self.data.x_trim)
+            x_max = np.max(self.data.x_trim)
+            px = x_min + 0.5 * (x_max - x_min)
+            py = np.max(self.data.residual)
+            rmsd_item = pyqtgraph.TextItem(f"RMSD = {rmsd: .6f}", pyqtgraph.mkColor("white"), anchor=(0.5, 0))
+            self.plt_error.addItem(rmsd_item)
+            rmsd_item.setPos(px, py)
+
+        self._plot_species(index)
 
     def get_data(self):
-        self.data.x_model = None
-        self.data.y_model = None
+        self.data.clear_modeled()
         return copy.deepcopy(self.data)
 
     def get_region_values(self):

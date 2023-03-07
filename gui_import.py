@@ -24,7 +24,7 @@ class Ui_Frame(object):
     def setupUi(self, Frame):
         if not Frame.objectName():
             Frame.setObjectName(u"Frame")
-        Frame.resize(774, 80)
+        Frame.resize(846, 80)
         Frame.setMinimumSize(QSize(0, 80))
         Frame.setMaximumSize(QSize(16777215, 88))
         Frame.setStyleSheet(u"#le_desc, #le_cell, #le_chan, #le_rpm, #le_temp, #le_type, #le_wavl{\n"
@@ -34,7 +34,7 @@ class Ui_Frame(object):
         self.horizontalLayout = QHBoxLayout(Frame)
         self.horizontalLayout.setSpacing(10)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.horizontalLayout.setContentsMargins(2, 0, 2, 0)
+        self.horizontalLayout.setContentsMargins(0, 2, 0, 2)
         self.frm_logo = QFrame(Frame)
         self.frm_logo.setObjectName(u"frm_logo")
         self.frm_logo.setMinimumSize(QSize(120, 70))
@@ -253,6 +253,14 @@ class Ui_Frame(object):
 
         self.horizontalLayout.addWidget(self.frm_open)
 
+        self.pb_update = QPushButton(Frame)
+        self.pb_update.setObjectName(u"pb_update")
+        icon1 = QIcon()
+        icon1.addFile(u":/Icon/Resources/Icons/upgrade_FILL0_wght400_GRAD0_opsz48.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.pb_update.setIcon(icon1)
+
+        self.horizontalLayout.addWidget(self.pb_update, 0, Qt.AlignRight)
+
 
         self.retranslateUi(Frame)
 
@@ -271,5 +279,6 @@ class Ui_Frame(object):
         self.lb_wavl.setText(QCoreApplication.translate("Frame", u" Wavelength:", None))
         self.lb_rpm.setText(QCoreApplication.translate("Frame", u" RPM:", None))
         self.lb_temp.setText(QCoreApplication.translate("Frame", u" Temperature:", None))
+        self.pb_update.setText(QCoreApplication.translate("Frame", u"Update", None))
     # retranslateUi
 

@@ -48,6 +48,8 @@ class FitModel:
         x = self.data_model.data.x_trim
         y = self.data_model.data.y_trim
         list_models = []
+        sigma_bound_state = False
+        sigma_bound_name = None
         for i in range(len(self.data_model.model)):
             func = self.data_model.model[i]
             # func = dms.Function(dms.Types.GAUSS)
@@ -64,21 +66,42 @@ class FitModel:
                 self.prefix.append(pref)
                 gauss = lmfit.models.GaussianModel(prefix=pref)
                 self.parameters.update(gauss.make_params())
+                cent_vary = not func.gauss.center.fixed
+                sigma_vary = not func.gauss.sigma.fixed
+                amplitude_vary = not func.gauss.amplitude.fixed
+
+                expression = None
+                if func.gauss.sigma.bound:
+                    if sigma_bound_state:
+                        expression = f"{sigma_bound_name}sigma"
+                    else:
+                        sigma_bound_state = True
+                        sigma_bound_name = pref
 
                 cent_val = func.gauss.center.value
                 cent_min = func.gauss.center.min
                 cent_max = func.gauss.center.max
-                sigma = np.std(x[np.logical_and(x >= cent_min, x <= cent_max)])
-                interp = get_y_x(x, y, cent_val)
-                amplitude = 0.001
-                if interp is not None:
-                    xx = interp[0]
-                    yy = interp[1]
-                    amplitude = (yy * sigma * np.sqrt(2 * np.pi)) / np.exp(-0.5 * ((xx - cent_val) / sigma) ** 2)
 
-                self.parameters[pref + 'center'].set(value=cent_val, min=cent_min, max=cent_max)
-                self.parameters[pref + 'sigma'].set(value=sigma, min=sigma / 100)
-                self.parameters[pref + 'amplitude'].set(value=amplitude, min=1e-5)
+                if sigma_vary:
+                    sigma = np.std(x[np.logical_and(x >= cent_min, x <= cent_max)])
+                else:
+                    sigma = func.gauss.sigma.value
+                if amplitude_vary:
+                    interp = get_y_x(x, y, cent_val)
+                    amplitude = 0.001
+                    if interp is not None:
+                        xx = interp[0]
+                        yy = interp[1]
+                        amplitude = (yy * sigma * np.sqrt(2 * np.pi)) / np.exp(-0.5 * ((xx - cent_val) / sigma) ** 2)
+                else:
+                    amplitude = func.gauss.amplitude.value
+
+                self.parameters[pref + 'center'].set(value=cent_val, min=cent_min, max=cent_max, vary=cent_vary)
+                if expression is None:
+                    self.parameters[pref + 'sigma'].set(value=sigma, min=sigma / 100, vary=sigma_vary)
+                else:
+                    self.parameters[pref + 'sigma'].set(value=sigma, min=sigma / 100, vary=sigma_vary, expr=expression)
+                self.parameters[pref + 'amplitude'].set(value=amplitude, min=1e-5, vary=amplitude_vary)
                 list_models.append(gauss)
         return list_models
 
@@ -88,8 +111,10 @@ class FitModel:
         x_arr = np.linspace(x1, x2, n_points)
         self.data_model.data.x_model = x_arr
         components = self.fit.eval_components(x=x_arr)
+        components_0 = self.fit.eval_components(x=self.data_model.data.x_trim)
         y_model = []
         yy = np.zeros(len(x_arr), dtype=np.float)
+        yy_0 = np.zeros(len(self.data_model.data.x_trim), dtype=np.float)
         n = 0
         for i in range(len(self.data_model.model)):
             func = self.data_model.model[i]
@@ -99,11 +124,12 @@ class FitModel:
             else:
                 y_comp = components[self.prefix[n]]
                 yy += y_comp
+                yy_0 += components_0[self.prefix[n]]
                 n += 1
                 y_model.append(y_comp)
         y_model.append(yy)
         self.data_model.data.y_model = y_model
-        # self.data_model.data.residual = yy - self.data_model.data.y_trim
+        self.data_model.data.residual = yy_0 - self.data_model.data.y_trim
 
     def get_data_model(self):
         return copy.deepcopy(self.data_model)
