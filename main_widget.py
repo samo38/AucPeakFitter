@@ -151,7 +151,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         model.append(func)
         self._reset_sp_list()
         n = self.frm_list.lw_items.count() - 1
-        self.frm_list.lw_items.setCurrentRow(n)
+        self.frm_list.select_row(n)
 
     @Slot()
     def slt_delete_species(self):
@@ -160,7 +160,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         model = self.all_data_model[self.scan_id].model
         model.remove(model[self.species_id])
         self._reset_sp_list()
-        self.frm_list.lw_items.setCurrentRow(0)
+        self.frm_list.select_row(0)
 
     @Slot()
     def slt_update_species(self):
@@ -178,7 +178,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         fm.eval_components()
         dm = fm.get_data_model()
         self.all_data_model[self.scan_id] = dm
-        self.frm_list.lw_items.setCurrentRow(0)
+        self.frm_list.select_row(0)
 
     @Slot()
     def slt_update_app(self):
@@ -205,7 +205,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         sp_list.append(":::::::::: New Species ::::::::::")
         return sp_list
 
-    def _check_all_functions(self):
+    def _check_functions(self):
         data_model = self.all_data_model[self.scan_id]
         model = copy.deepcopy(data_model.model)
         gauss_model = []
@@ -247,7 +247,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         data_model.model = model_out
 
     def _reset_sp_list(self):
-        self._check_all_functions()
+        self._check_functions()
         sp_list = self._get_sp_list()
         self.frm_list.set_items(sp_list)
         self.frm_ctrl.setEnabled(False)

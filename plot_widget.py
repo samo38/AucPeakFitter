@@ -174,7 +174,7 @@ class PlotWidget(QFrame):
 
     def _plot_species(self, index=None):
         plot_region = True
-        if self.data.y_model is not None:
+        if self.data.y_model is not None and index is not None:
             if self.data.y_model[index] is not None:
                 brush = pyqtgraph.mkBrush(color='magenta')
                 # brush.setStyle(Qt.BrushStyle.BDiagPattern)
