@@ -221,7 +221,7 @@
          </size>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color: rgb(143, 240, 164);</string>
+         <string notr="true">background-color: rgb(135, 206, 235);</string>
         </property>
         <property name="text">
          <string>Report</string>

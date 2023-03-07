@@ -110,7 +110,7 @@ class Ui_Frame(object):
         self.pb_report.setObjectName(u"pb_report")
         self.pb_report.setMinimumSize(QSize(80, 25))
         self.pb_report.setMaximumSize(QSize(80, 25))
-        self.pb_report.setStyleSheet(u"background-color: rgb(143, 240, 164);")
+        self.pb_report.setStyleSheet(u"background-color: rgb(135, 206, 235);")
         icon2 = QIcon()
         icon2.addFile(u":/Icon/Resources/Icons/text_snippet_FILL0_wght400_GRAD0_opsz48.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.pb_report.setIcon(icon2)

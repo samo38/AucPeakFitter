@@ -37,10 +37,11 @@ def mk_desktop(app_path: str):
     home_dir = os.path.expanduser('~')
     desk_path = os.path.join(home_dir, "Desktop")
     share_path = os.path.join(home_dir, ".local", "share", "applications")
-    if os.path.isdir(desk_path):
-        desk_path = os.path.join(desk_path, "AucPeakFitter.desktop")
-    elif os.path.isdir(share_path):
+
+    if os.path.isdir(share_path):
         desk_path = os.path.join(share_path, "AucPeakFitter.desktop")
+    elif os.path.isdir(desk_path):
+        desk_path = os.path.join(desk_path, "AucPeakFitter.desktop")
     else:
         desk_path = os.path.join(home_dir, "AucPeakFitter.desktop")
     with open(desk_path, "w") as fid:

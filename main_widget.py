@@ -1,3 +1,5 @@
+import subprocess
+
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect, QDir,
     QSize, QTime, QUrl, Qt)
@@ -7,13 +9,34 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
     QListWidget, QListWidgetItem, QPushButton, QSizePolicy, QFileDialog, QMessageBox,
-    QSpinBox, QVBoxLayout, QWidget, QMainWindow)
+    QSpinBox, QVBoxLayout, QWidget, QMainWindow, QTextEdit, QDialog, QStyle)
 from PySide6.QtCore import (Slot, Signal)
+import os
+import sys
 import numpy as np
 import copy
 from gui_main_window import Ui_MainWindow
 import data_models as dms
 from fit_model import FitModel
+
+
+class UpdateBox(QDialog):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Software Updating")
+        self.setMinimumSize(600, 400)
+        self.text_edit = QTextEdit()
+        self.text_edit.setReadOnly(True)
+        self.pb_close = QPushButton("Close")
+        pixmap = QStyle.StandardPixmap.SP_DialogCloseButton
+        icon = self.style().standardIcon(pixmap)
+        self.pb_close.setIcon(icon)
+        lyt = QVBoxLayout()
+        lyt.addWidget(self.text_edit)
+        lyt.addWidget(self.pb_close, 0, Qt.AlignHCenter)
+        self.setLayout(lyt)
+        self.pb_close.clicked.connect(self.close)
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -51,6 +74,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.frm_ctrl.sig_update.connect(self.slt_update_species)
 
         self.frm_list.pb_run.clicked.connect(self.slt_run)
+        self.frm_open.pb_update.clicked.connect(self.slt_update_app)
 
     @Slot(object)
     def slt_new_file(self, all_data):
@@ -155,6 +179,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         dm = fm.get_data_model()
         self.all_data_model[self.scan_id] = dm
         self.frm_list.lw_items.setCurrentRow(0)
+
+    @Slot()
+    def slt_update_app(self):
+        app_path = os.path.dirname(os.path.abspath(__file__))
+        py_exe = sys.executable
+        setup_script = os.path.join(app_path, "setup_tools.py")
+        p_1 = subprocess.run(['git', '-C', app_path, 'pull'], capture_output=True, text=True)
+        p_2 = subprocess.run([py_exe, setup_script], capture_output=True, text=True)
+        mess_box = UpdateBox()
+        mess_box.text_edit.setText(p_1.stdout + "\n\n" + p_2.stdout)
+        mess_box.exec()
+        self.close()
 
     def _get_sp_list(self):
         data_model = self.all_data_model[self.scan_id]
