@@ -80,9 +80,9 @@ class PlotWidget(QFrame):
         self.line_picker_trim = pyqtgraph.InfiniteLine(pen=pen, movable=True)
         # self.picker_raw.setZValue(-10)
 
-        self.text_item = pyqtgraph.TextItem(" ", pyqtgraph.mkColor("white"), anchor=(1, 0))
-        self.plt_error.addItem(self.text_item)
-        self.text_item.setPos(0.1, 0.1)
+        # self.text_item = pyqtgraph.TextItem(" ", pyqtgraph.mkColor("white"), anchor=(1, 0))
+        # self.plt_error.addItem(self.text_item)
+        # self.text_item.setPos(0.1, 0.1)
 
         layout = QHBoxLayout()
         layout.setSpacing(1)
@@ -135,8 +135,20 @@ class PlotWidget(QFrame):
         self._pick_region_import(0)
 
     @Slot(object, object)
-    def slt_error_view_range(self, arg_1, arg_2):
-        print()
+    def slt_error_view_range(self, arg1, arg2):
+        text_item = None
+        for item in self.plt_error.items:
+            if isinstance(item, pyqtgraph.TextItem):
+                text_item = item
+                break
+        if text_item is None:
+            return
+        xr, yr = arg2
+        dx = xr[1] - xr[0]
+        dy = yr[1] - yr[0]
+        pad = 0.1
+        text_item.setPos(xr[1] - dx * pad, yr[1] - dy * pad)
+        text_item.updateTextPos()
 
     def _pick_region_import(self, state: int):
         if state == 1:  # connect picker
@@ -238,13 +250,11 @@ class PlotWidget(QFrame):
             curve_m.setData(self.data_model.data.x_model, self.data_model.data.y_model)
             curve_r.setData(self.data_model.data.x_trim, self.data_model.data.residual)
             rmsd = np.sqrt(np.mean(self.data_model.data.residual ** 2))
-            x_min = np.min(self.data_model.data.x_trim)
-            x_max = np.max(self.data_model.data.x_trim)
-            xr, yr = self.plt_error.viewRange()
-            # px = x_min + 0.5 * (x_max - x_min)
-            # py = np.max(self.data_model.data.residual)
-            self.text_item.setText(f"RMSD = {rmsd: .6f}")
-            self.text_item.setPos(xr[1], yr[1])
+            px = np.max(self.data_model.data.x_trim)
+            py = np.max(self.data_model.data.residual)
+            text_item = pyqtgraph.TextItem(f"RMSD = {rmsd: .6f}", pyqtgraph.mkColor("white"), anchor=(1, 0))
+            self.plt_error.addItem(text_item)
+            text_item.setPos(px, py)
         self._plot_species(index)
 
     def get_data(self):

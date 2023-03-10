@@ -100,8 +100,6 @@ class FitModel:
 
     def _get_final_values(self):
         params = self.fit.params
-        # sigma_bound_state = False
-        # sigma_bound_value = None
         for i in range(len(self.data_model.model)):
             func = self.data_model.model[i]
             # func = dms.Function(dms.Types.GAUSS)
@@ -123,20 +121,6 @@ class FitModel:
                 func.gauss.amplitude.value = amplitude.value
                 func.gauss.center.value = center.value
                 func.gauss.sigma.value = sigma.value
-                # if amplitude.vary:
-                #     func.gauss.amplitude.value = amplitude.value
-                # if center.vary:
-                #     func.gauss.center.value = center.value
-                # if func.gauss.sigma.bound:
-                #     if sigma_bound_state:
-                #         func.gauss.sigma.value = sigma_bound_value
-                #     else:
-                #         sigma_bound_state = True
-                #         func.gauss.sigma.value = sigma.value
-                #         sigma_bound_value = sigma.value
-                # else:
-                #     if sigma.vary:
-                #         func.gauss.sigma.value = sigma.value
 
     def init_fit(self):
         parameters = lmfit.Parameters()
