@@ -24,7 +24,7 @@ class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(576, 110)
+        Form.resize(697, 110)
         Form.setMinimumSize(QSize(0, 110))
         Form.setMaximumSize(QSize(16777215, 110))
         self.horizontalLayout = QHBoxLayout(Form)
@@ -62,8 +62,8 @@ class Ui_Form(object):
 
         self.le_cent_mm = QLineEdit(self.group)
         self.le_cent_mm.setObjectName(u"le_cent_mm")
-        self.le_cent_mm.setMinimumSize(QSize(105, 0))
-        self.le_cent_mm.setMaximumSize(QSize(105, 16777215))
+        self.le_cent_mm.setMinimumSize(QSize(120, 0))
+        self.le_cent_mm.setMaximumSize(QSize(120, 16777215))
         self.le_cent_mm.setReadOnly(True)
 
         self.gridLayout.addWidget(self.le_cent_mm, 0, 6, 1, 1)
@@ -80,8 +80,8 @@ class Ui_Form(object):
 
         self.le_amp = QLineEdit(self.group)
         self.le_amp.setObjectName(u"le_amp")
-        self.le_amp.setMinimumSize(QSize(55, 0))
-        self.le_amp.setMaximumSize(QSize(55, 16777215))
+        self.le_amp.setMinimumSize(QSize(75, 0))
+        self.le_amp.setMaximumSize(QSize(75, 16777215))
         self.le_amp.setReadOnly(True)
 
         self.gridLayout.addWidget(self.le_amp, 2, 3, 1, 1)
@@ -104,8 +104,8 @@ class Ui_Form(object):
 
         self.le_sigma = QLineEdit(self.group)
         self.le_sigma.setObjectName(u"le_sigma")
-        self.le_sigma.setMinimumSize(QSize(55, 0))
-        self.le_sigma.setMaximumSize(QSize(55, 16777215))
+        self.le_sigma.setMinimumSize(QSize(75, 0))
+        self.le_sigma.setMaximumSize(QSize(75, 16777215))
         self.le_sigma.setReadOnly(True)
 
         self.gridLayout.addWidget(self.le_sigma, 1, 3, 1, 1)
@@ -118,8 +118,8 @@ class Ui_Form(object):
 
         self.le_cent_val = QLineEdit(self.group)
         self.le_cent_val.setObjectName(u"le_cent_val")
-        self.le_cent_val.setMinimumSize(QSize(55, 0))
-        self.le_cent_val.setMaximumSize(QSize(55, 16777215))
+        self.le_cent_val.setMinimumSize(QSize(75, 0))
+        self.le_cent_val.setMaximumSize(QSize(75, 16777215))
         self.le_cent_val.setReadOnly(True)
 
         self.gridLayout.addWidget(self.le_cent_val, 0, 3, 1, 1)

@@ -30,16 +30,16 @@ class GaussianControl(QWidget, gui_gaussian.Ui_Form):
 
     sig_pick_line = Signal(int, float)
     sig_pick_region = Signal(int, float, float)
+    sig_set_enable = Signal(bool)
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setupUi(self)
         self.gauss = dms.Gaussian()
-        self.x_min = None
-        self.x_max = None
-        self.x_mid = None
         self.line = None
         self.region = None
+        self.line_state = False
+        self.region_state = False
 
         self.pb_cent_val.clicked.connect(self.slt_pick_cent)
         self.pb_cent_mm.clicked.connect(self.slt_pick_reg)
@@ -70,9 +70,11 @@ class GaussianControl(QWidget, gui_gaussian.Ui_Form):
             self.pb_cent_val.setText("Apply")
             self.pb_cent_val.setStyleSheet(u"background-color: rgb(246, 97, 81);")
             if self.line is None:
-                self.sig_pick_line.emit(1, self.x_mid)
+                self.sig_pick_line.emit(1, -1)
             else:
                 self.sig_pick_line.emit(1, self.line)
+            self.line_state = True
+            self._check_sig_set_enable()
         else:
             self.pb_cent_val.setText("Set")
             self.pb_cent_val.setStyleSheet(u"background-color: ;")
@@ -80,6 +82,8 @@ class GaussianControl(QWidget, gui_gaussian.Ui_Form):
             self.gauss.center.value = self.line
             self.le_cent_val.setText(f"{self.line: .3f}")
             self.le_cent_val.setCursorPosition(0)
+            self.line_state = False
+            self._check_sig_set_enable()
 
     @Slot(bool)
     def slt_pick_reg(self, checked):
@@ -87,9 +91,11 @@ class GaussianControl(QWidget, gui_gaussian.Ui_Form):
             self.pb_cent_mm.setText("Apply")
             self.pb_cent_mm.setStyleSheet(u"background-color: rgb(246, 97, 81);")
             if self.region is None:
-                self.sig_pick_region.emit(1, self.x_min, self.x_max)
+                self.sig_pick_region.emit(1, -1, -1)
             else:
                 self.sig_pick_region.emit(1, self.region[0], self.region[1])
+            self.region_state = True
+            self._check_sig_set_enable()
         else:
             self.pb_cent_mm.setText("Set")
             self.pb_cent_mm.setStyleSheet(u"background-color: ;")
@@ -98,13 +104,16 @@ class GaussianControl(QWidget, gui_gaussian.Ui_Form):
             val2 = self.region[1]
             self.gauss.center.min = val1
             self.gauss.center.max = val2
-            self.le_cent_mm.setText(f"{val1: .3f}-{val2: .3f}")
+            self.le_cent_mm.setText(f"{val1:<.3f} - {val2:<.3f}")
             self.le_cent_mm.setCursorPosition(0)
+            self.region_state = False
+            self._check_sig_set_enable()
 
-    def set_min_mid_max(self, x_arr: np.array):
-        self.x_min = x_arr[0]
-        self.x_max = x_arr[-1]
-        self.x_mid = x_arr[0] + (x_arr[-1] - x_arr[0]) * 0.5
+    def _check_sig_set_enable(self):
+        if self.line_state or self.region_state:
+            self.sig_set_enable.emit(False)
+        elif (self.line_state is False) and (self.line_state is False):
+            self.sig_set_enable.emit(True)
 
     def set_line(self, value: float):
         self.line = value
@@ -134,7 +143,7 @@ class GaussianControl(QWidget, gui_gaussian.Ui_Form):
         if amp_val is None:
             self.le_amp.clear()
         else:
-            self.le_amp.setText(f"{amp_val: .3f}")
+            self.le_amp.setText(f"{amp_val: .2e}")
 
         if cen_val is None:
             self.le_cent_val.clear()
@@ -146,13 +155,13 @@ class GaussianControl(QWidget, gui_gaussian.Ui_Form):
         if (cen_max is None) or (cen_min is None):
             self.le_cent_mm.clear()
         else:
-            self.le_cent_mm.setText(f"{cen_min: .3f}-{cen_max: .3f}")
+            self.le_cent_mm.setText(f"{cen_min:<.3f} - {cen_max:<.3f}")
             self.region = (cen_min, cen_max)
 
         if sigma_val is None:
             self.le_sigma.clear()
         else:
-            self.le_sigma.setText(f"{sigma_val: .3f}")
+            self.le_sigma.setText(f"{sigma_val: .2e}")
 
     def get_params(self):
         if len(self.le_cent_val.text()) == 0:
@@ -232,12 +241,12 @@ class ExponentialControl(QWidget, gui_exponential.Ui_Form):
         if amp_val is None:
             self.le_amp.clear()
         else:
-            self.le_amp.setText(f"{amp_val: .3f}")
+            self.le_amp.setText(f"{amp_val: .2e}")
 
         if dec_val is None:
             self.le_decay.clear()
         else:
-            self.le_decay.setText(f"{dec_val: .3f}")
+            self.le_decay.setText(f"{dec_val: .2e}")
 
     def get_params(self):
         if self.fix_decay.isChecked() and len(self.le_decay) == 0:

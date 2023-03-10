@@ -45,17 +45,17 @@ class Ui_Frame(object):
         self.horizontalLayout_2 = QHBoxLayout(self.group)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.frame = QFrame(self.group)
-        self.frame.setObjectName(u"frame")
-        self.frame.setMinimumSize(QSize(170, 0))
-        self.frame.setMaximumSize(QSize(170, 16777215))
-        self.frame.setFrameShape(QFrame.NoFrame)
-        self.frame.setFrameShadow(QFrame.Raised)
-        self.verticalLayout = QVBoxLayout(self.frame)
+        self.frm_left = QFrame(self.group)
+        self.frm_left.setObjectName(u"frm_left")
+        self.frm_left.setMinimumSize(QSize(170, 0))
+        self.frm_left.setMaximumSize(QSize(170, 16777215))
+        self.frm_left.setFrameShape(QFrame.NoFrame)
+        self.frm_left.setFrameShadow(QFrame.Raised)
+        self.verticalLayout = QVBoxLayout(self.frm_left)
         self.verticalLayout.setSpacing(2)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.frame_1 = QFrame(self.frame)
+        self.frame_1 = QFrame(self.frm_left)
         self.frame_1.setObjectName(u"frame_1")
         self.frame_1.setMinimumSize(QSize(170, 0))
         self.frame_1.setMaximumSize(QSize(170, 10000))
@@ -115,7 +115,7 @@ class Ui_Frame(object):
 
         self.verticalLayout.addWidget(self.frame_1)
 
-        self.frame_2 = QFrame(self.frame)
+        self.frame_2 = QFrame(self.frm_left)
         self.frame_2.setObjectName(u"frame_2")
         self.frame_2.setFrameShape(QFrame.NoFrame)
         self.frame_2.setFrameShadow(QFrame.Raised)
@@ -150,7 +150,7 @@ class Ui_Frame(object):
         self.verticalLayout.addWidget(self.frame_2)
 
 
-        self.horizontalLayout_2.addWidget(self.frame)
+        self.horizontalLayout_2.addWidget(self.frm_left)
 
         self.stacked = QStackedWidget(self.group)
         self.stacked.setObjectName(u"stacked")

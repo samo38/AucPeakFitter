@@ -60,16 +60,16 @@ class Ui_Form(object):
 
         self.le_amp = QLineEdit(self.group)
         self.le_amp.setObjectName(u"le_amp")
-        self.le_amp.setMinimumSize(QSize(50, 0))
-        self.le_amp.setMaximumSize(QSize(50, 16777215))
+        self.le_amp.setMinimumSize(QSize(80, 0))
+        self.le_amp.setMaximumSize(QSize(80, 16777215))
         self.le_amp.setReadOnly(True)
 
         self.gridLayout.addWidget(self.le_amp, 0, 3, 1, 1)
 
         self.le_decay = QLineEdit(self.group)
         self.le_decay.setObjectName(u"le_decay")
-        self.le_decay.setMinimumSize(QSize(50, 0))
-        self.le_decay.setMaximumSize(QSize(50, 16777215))
+        self.le_decay.setMinimumSize(QSize(80, 0))
+        self.le_decay.setMaximumSize(QSize(80, 16777215))
         self.le_decay.setReadOnly(True)
 
         self.gridLayout.addWidget(self.le_decay, 1, 3, 1, 1)

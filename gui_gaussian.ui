@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>576</width>
+    <width>697</width>
     <height>110</height>
    </rect>
   </property>
@@ -113,13 +113,13 @@ font-weight: normal;
        <widget class="QLineEdit" name="le_cent_mm">
         <property name="minimumSize">
          <size>
-          <width>105</width>
+          <width>120</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>105</width>
+          <width>120</width>
           <height>16777215</height>
          </size>
         </property>
@@ -146,13 +146,13 @@ font-weight: normal;
        <widget class="QLineEdit" name="le_amp">
         <property name="minimumSize">
          <size>
-          <width>55</width>
+          <width>75</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>55</width>
+          <width>75</width>
           <height>16777215</height>
          </size>
         </property>
@@ -189,13 +189,13 @@ font-weight: normal;
        <widget class="QLineEdit" name="le_sigma">
         <property name="minimumSize">
          <size>
-          <width>55</width>
+          <width>75</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>55</width>
+          <width>75</width>
           <height>16777215</height>
          </size>
         </property>
@@ -218,13 +218,13 @@ font-weight: normal;
        <widget class="QLineEdit" name="le_cent_val">
         <property name="minimumSize">
          <size>
-          <width>55</width>
+          <width>75</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>55</width>
+          <width>75</width>
           <height>16777215</height>
          </size>
         </property>

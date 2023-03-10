@@ -46,6 +46,7 @@ class SpeciesControl(QFrame, gui_species_control.Ui_Frame):
         self.pb_vis.clicked.connect(self.slt_update_vis)
         self.pb_new.clicked.connect(self.slt_export)
         self.pb_del.clicked.connect(self.slt_delete)
+        self.wg_gaus.sig_set_enable.connect(self.slt_set_enable)
         self.cmb_type.setCurrentIndex(0)
         self.slt_change_function('Gaussian')
 
@@ -120,6 +121,10 @@ class SpeciesControl(QFrame, gui_species_control.Ui_Frame):
         self.le_name.setText(le_name)
         self.func.name = le_name
 
+    @Slot(bool)
+    def slt_set_enable(self, state):
+        self.frm_left.setEnabled(state)
+
     def __update_cmb_type(self):
         if self.func.type == dms.Types.GAUSS:
             self.cmb_type.setCurrentText(u"Gaussian")
@@ -156,8 +161,7 @@ class SpeciesControl(QFrame, gui_species_control.Ui_Frame):
             self.pb_new.setStyleSheet("background-color: rgb(249, 240, 107);")
             self.state_new = False
 
-    def setup(self, x_arr: np.array, index: int, func=None):
-        self.wg_gaus.set_min_mid_max(x_arr)
+    def setup(self, index: int, func=None):
         if func is None:
             self.func = dms.Function(dms.Types.GAUSS)
             self.func_0 = dms.Function(dms.Types.GAUSS)

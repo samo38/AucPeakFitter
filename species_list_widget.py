@@ -9,7 +9,6 @@ from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
     QListWidget, QListWidgetItem, QPushButton, QSizePolicy, QFileDialog, QMessageBox,
     QSpinBox, QVBoxLayout, QWidget)
 from PySide6.QtCore import (Slot, Signal)
-import numpy as np
 import gui_species_list
 
 
@@ -23,7 +22,9 @@ class SpeciesList(QFrame, gui_species_list.Ui_Frame):
         super().__init__(parent=parent)
         self.setupUi(self)
 
-        self.prev_row = None
+        self.flag_row = False
+        self.flag_click = False
+        self.new_sp_str = ":::::::::: New Species ::::::::::"
         self.sb_scans.valueChanged.connect(self.slt_scan_id)
         self.lw_items.itemClicked.connect(self.slt_item_clicked)
         self.lw_items.currentRowChanged.connect(self.slt_row_changed)
@@ -34,15 +35,20 @@ class SpeciesList(QFrame, gui_species_list.Ui_Frame):
 
     @Slot(QListWidgetItem)
     def slt_item_clicked(self, item):
+        if self.flag_row:
+            self.flag_row = False
+            return
         row = self.lw_items.currentRow()
-        self.prev_row = row
+        self.flag_click = True
         self.select_row(row)
 
     @Slot(int)
     def slt_row_changed(self, row):
-        if self.prev_row != row:
-            self.prev_row = row
-            self.select_row(row)
+        if self.flag_click:
+            self.flag_click = False
+            return
+        self.flag_row = True
+        self.select_row(row)
 
     def set_spin_box(self, n: int):
         self.sb_scans.valueChanged.disconnect(self.slt_scan_id)
@@ -54,18 +60,20 @@ class SpeciesList(QFrame, gui_species_list.Ui_Frame):
 
     def set_items(self, items: list):
         self.lw_items.itemClicked.disconnect(self.slt_item_clicked)
-        self.prev_row = -1
+        self.lw_items.currentRowChanged.disconnect(self.slt_row_changed)
         self.lw_items.clear()
         for i in range(len(items)):
             self.lw_items.addItem(items[i])
+        self.lw_items.addItem(self.new_sp_str)
         self.lw_items.itemClicked.connect(self.slt_item_clicked)
+        self.lw_items.currentRowChanged.connect(self.slt_row_changed)
 
     def select_row(self, row):
-        n_items = self.lw_items.count()
         self.lw_items.currentRowChanged.disconnect(self.slt_row_changed)
         self.lw_items.setCurrentRow(row)
         self.lw_items.currentRowChanged.connect(self.slt_row_changed)
-        if row == (n_items - 1):
+        item = self.lw_items.item(row)
+        if "New Species" in item.text():
             self.sig_new_item.emit()
         else:
             self.sig_item_id.emit(row)

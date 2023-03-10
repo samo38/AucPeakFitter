@@ -34,17 +34,10 @@ class FitModel:
 
     def __init__(self, data_model: dms.DataModel):
         self.data_model = copy.deepcopy(data_model)
-
-        self.parameters = lmfit.Parameters()
+        self.fit = None
         self.prefix = []
-        list_models = self._make_params()
-        self.model = list_models[0]
-        for i in range(1, len(list_models)):
-            self.model = self.model + list_models[i]
-        self.init = self.model.eval(self.parameters, x=self.data_model.data.x_trim)
-        self.fit = self.model.fit(self.data_model.data.y_trim, self.parameters, x=self.data_model.data.x_trim)
 
-    def _make_params(self):
+    def _build_params(self, params):
         x = self.data_model.data.x_trim
         y = self.data_model.data.y_trim
         list_models = []
@@ -59,13 +52,13 @@ class FitModel:
                 pref = 'exp_'
                 self.prefix.append(pref)
                 exp = lmfit.models.ExponentialModel(prefix=pref)
-                self.parameters.update(exp.guess(y, x=x))
+                params.update(exp.guess(y, x=x))
                 list_models.append(exp)
             elif func.type == dms.Types.GAUSS:
                 pref = f"gauss{i}_"
                 self.prefix.append(pref)
                 gauss = lmfit.models.GaussianModel(prefix=pref)
-                self.parameters.update(gauss.make_params())
+                params.update(gauss.make_params())
                 cent_vary = not func.gauss.center.fixed
                 sigma_vary = not func.gauss.sigma.fixed
                 amplitude_vary = not func.gauss.amplitude.fixed
@@ -96,23 +89,76 @@ class FitModel:
                 else:
                     amplitude = func.gauss.amplitude.value
 
-                self.parameters[pref + 'center'].set(value=cent_val, min=cent_min, max=cent_max, vary=cent_vary)
+                params[pref + 'center'].set(value=cent_val, min=cent_min, max=cent_max, vary=cent_vary)
                 if expression is None:
-                    self.parameters[pref + 'sigma'].set(value=sigma, min=sigma / 100, vary=sigma_vary)
+                    params[pref + 'sigma'].set(value=sigma, min=sigma / 100, vary=sigma_vary)
                 else:
-                    self.parameters[pref + 'sigma'].set(value=sigma, min=sigma / 100, vary=sigma_vary, expr=expression)
-                self.parameters[pref + 'amplitude'].set(value=amplitude, min=1e-5, vary=amplitude_vary)
+                    params[pref + 'sigma'].set(value=sigma, min=sigma / 100, vary=sigma_vary, expr=expression)
+                params[pref + 'amplitude'].set(value=amplitude, min=1e-5, vary=amplitude_vary)
                 list_models.append(gauss)
         return list_models
 
+    def _get_final_values(self):
+        params = self.fit.params
+        # sigma_bound_state = False
+        # sigma_bound_value = None
+        for i in range(len(self.data_model.model)):
+            func = self.data_model.model[i]
+            # func = dms.Function(dms.Types.GAUSS)
+            if not func.visible:
+                continue
+            if func.type == dms.Types.EXP:
+                pref = 'exp_'
+                amplitude = params.get(pref + "amplitude")
+                decay = params.get(pref + "decay")
+                if amplitude.vary:
+                    func.exp.amplitude.value = amplitude.value
+                if decay.vary:
+                    func.exp.decay.value = decay.value
+            elif func.type == dms.Types.GAUSS:
+                pref = f"gauss{i}_"
+                amplitude = params.get(pref + "amplitude")
+                center = params.get(pref + "center")
+                sigma = params.get(pref + "sigma")
+                func.gauss.amplitude.value = amplitude.value
+                func.gauss.center.value = center.value
+                func.gauss.sigma.value = sigma.value
+                # if amplitude.vary:
+                #     func.gauss.amplitude.value = amplitude.value
+                # if center.vary:
+                #     func.gauss.center.value = center.value
+                # if func.gauss.sigma.bound:
+                #     if sigma_bound_state:
+                #         func.gauss.sigma.value = sigma_bound_value
+                #     else:
+                #         sigma_bound_state = True
+                #         func.gauss.sigma.value = sigma.value
+                #         sigma_bound_value = sigma.value
+                # else:
+                #     if sigma.vary:
+                #         func.gauss.sigma.value = sigma.value
+
+    def init_fit(self):
+        parameters = lmfit.Parameters()
+        list_models = self._build_params(parameters)
+        if len(list_models) == 0:
+            return
+        tot_models = list_models[0]
+        for i in range(1, len(list_models)):
+            tot_models += list_models[i]
+        self.fit = tot_models.fit(self.data_model.data.y_trim, parameters, x=self.data_model.data.x_trim)
+        self._get_final_values()
+        self.data_model.sort_centers()
+
     def eval_components(self, n_points=500):
+        if self.fit is None:
+            return
         x1 = self.data_model.data.x_trim[0]
         x2 = self.data_model.data.x_trim[-1]
         x_arr = np.linspace(x1, x2, n_points)
         self.data_model.data.x_model = x_arr
         components = self.fit.eval_components(x=x_arr)
         components_0 = self.fit.eval_components(x=self.data_model.data.x_trim)
-        y_model = []
         yy = np.zeros(len(x_arr), dtype=np.float)
         yy_0 = np.zeros(len(self.data_model.data.x_trim), dtype=np.float)
         n = 0
@@ -120,15 +166,14 @@ class FitModel:
             func = self.data_model.model[i]
             # func = dms.Function(dms.Types.GAUSS)
             if not func.visible:
-                y_model.append(None)
+                func.clear_xy()
             else:
                 y_comp = components[self.prefix[n]]
                 yy += y_comp
                 yy_0 += components_0[self.prefix[n]]
                 n += 1
-                y_model.append(y_comp)
-        y_model.append(yy)
-        self.data_model.data.y_model = y_model
+                func.set_xy(x_arr, y_comp)
+        self.data_model.data.y_model = yy
         self.data_model.data.residual = yy_0 - self.data_model.data.y_trim
 
     def get_data_model(self):

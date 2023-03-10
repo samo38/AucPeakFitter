@@ -65,6 +65,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.frm_plot.sig_data_updated.connect(self.slt_update_data)
         self.frm_plot.sig_line_picked.connect(self.slt_line_picked)
         self.frm_plot.sig_region_picked.connect(self.slt_region_picked)
+        self.frm_plot.sig_set_enable.connect(self.slt_set_enable_list_ctrl)
 
         # control frame
         self.frm_ctrl.wg_gaus.sig_pick_line.connect(self.slt_pick_line)
@@ -72,6 +73,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.frm_ctrl.sig_add.connect(self.slt_add_species)
         self.frm_ctrl.sig_delete.connect(self.slt_delete_species)
         self.frm_ctrl.sig_update.connect(self.slt_update_species)
+        self.frm_ctrl.wg_gaus.sig_set_enable.connect(self.slt_set_enable_list_plot)
 
         self.frm_list.pb_run.clicked.connect(self.slt_run)
         self.frm_open.pb_update.clicked.connect(self.slt_update_app)
@@ -90,39 +92,31 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.scan_id = scan_id
         self.frm_open.update_info(scan_id)
         data_model = self.all_data_model[self.scan_id]
-        self.frm_plot.plot_data(data_model.data)
-        self._reset_sp_list()
+        self.frm_plot.plot_data(data_model)
+        self.frm_list.set_items(data_model.name_list)
+        self.frm_ctrl.setEnabled(False)
 
     @Slot(int)
     def slt_species(self, func_id):
         self.species_id = func_id
         data_model = self.all_data_model[self.scan_id]
-        if data_model.model[func_id].type == dms.Types.GAUSS:
-            x1 = data_model.model[func_id].gauss.center.min
-            x2 = data_model.model[func_id].gauss.center.value
-            x3 = data_model.model[func_id].gauss.center.max
-        else:
-            x1 = None
-            x2 = None
-            x3 = None
-        self.frm_plot.plot_data(data_model.data, func_id, x1, x2, x3)
-        x_arr = data_model.data.x_trim
-        self.frm_ctrl.setup(x_arr, data_model.next_index, data_model.model[func_id])
+        self.frm_plot.plot_data(data_model, func_id)
+        self.frm_ctrl.setup(data_model.next_index, data_model.model[func_id])
         self.frm_ctrl.setEnabled(True)
 
     @Slot()
     def slt_new_species(self):
         data_model = self.all_data_model[self.scan_id]
-        x_arr = data_model.data.x_trim
-        self.frm_plot.plot_data(data_model.data)
-        self.frm_ctrl.setup(x_arr, data_model.next_index)
+        self.frm_plot.plot_data(data_model)
+        self.frm_ctrl.setup(data_model.next_index)
         self.frm_ctrl.setEnabled(True)
 
     @Slot(dms.DataModel)
     def slt_update_data(self):
         data = self.frm_plot.get_data()
         self.all_data_model[self.scan_id].data = data
-        self._reset_sp_list()
+        self.all_data_model[self.scan_id].clear_modeled()
+        self._reset_list()
 
     @Slot()
     def slt_line_picked(self):
@@ -144,41 +138,41 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     @Slot()
     def slt_add_species(self):
-        data = self.all_data_model[self.scan_id].data
-        data.clear_modeled()
         func = self.frm_ctrl.get_func()
         model = self.all_data_model[self.scan_id].model
         model.append(func)
-        self._reset_sp_list()
-        n = self.frm_list.lw_items.count() - 1
-        self.frm_list.select_row(n)
+        self.all_data_model[self.scan_id].set_model(model)
+        self.all_data_model[self.scan_id].clear_modeled()
+        self._reset_list()
 
     @Slot()
     def slt_delete_species(self):
-        data = self.all_data_model[self.scan_id].data
-        data.clear_modeled()
         model = self.all_data_model[self.scan_id].model
         model.remove(model[self.species_id])
-        self._reset_sp_list()
-        self.frm_list.select_row(0)
+        self.all_data_model[self.scan_id].set_model(model)
+        self.all_data_model[self.scan_id].clear_modeled()
+        self._reset_list()
 
     @Slot()
     def slt_update_species(self):
-        data = self.all_data_model[self.scan_id].data
-        data.clear_modeled()
         func = self.frm_ctrl.get_func()
         model = self.all_data_model[self.scan_id].model
         model[self.species_id] = func
-        self._reset_sp_list()
-        self.slt_species(self.species_id)
+        self.all_data_model[self.scan_id].set_model(model)
+        self.all_data_model[self.scan_id].clear_modeled()
+        self._reset_list()
 
     @Slot()
     def slt_run(self):
+        self.setCursor(Qt.WaitCursor)
         fm = FitModel(self.all_data_model[self.scan_id])
+        fm.init_fit()
         fm.eval_components()
         dm = fm.get_data_model()
+        self.setCursor(Qt.ArrowCursor)
         self.all_data_model[self.scan_id] = dm
-        self.frm_list.select_row(0)
+        self._reset_list()
+        self.frm_list.lw_items.setCurrentRow(0)
 
     @Slot()
     def slt_update_app(self):
@@ -192,63 +186,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         mess_box.exec()
         self.close()
 
-    def _get_sp_list(self):
-        data_model = self.all_data_model[self.scan_id]
-        sp_list = []
-        n_sp = len(data_model.model)
-        for i in range(n_sp):
-            name = f"{data_model.model[i].name}"
-            if data_model.model[i].type == dms.Types.GAUSS:
-                if data_model.model[i].gauss.sigma.bound is True:
-                    name += " - bound"
-            sp_list.append(name)
-        sp_list.append(":::::::::: New Species ::::::::::")
-        return sp_list
+    @Slot(bool)
+    def slt_set_enable_list_ctrl(self, state):
+        self.frm_open.setEnabled(state)
+        self.frm_list.setEnabled(state)
+        self.frm_ctrl.frm_left.setEnabled(state)
+        self.frm_ctrl.stacked.setEnabled(state)
 
-    def _check_functions(self):
-        data_model = self.all_data_model[self.scan_id]
-        model = copy.deepcopy(data_model.model)
-        gauss_model = []
-        buffer_state = False
-        buffer = None
-        cent_vals = []
-        for i in range(len(model)):
-            # func = dms.Function(dms.Types.GAUSS)
-            func = model[i]
-            if func.type == dms.Types.EXP:
-                if not buffer_state:
-                    buffer = copy.deepcopy(func)
-                    if buffer.visible:
-                        buffer.name = "Buffer"
-                    else:
-                        buffer.name = "**Buffer**"
-                    buffer_state = True
-                else:
-                    QMessageBox.warning(self, "Warning!", "A buffer species is already set!")
-            elif func.type == dms.Types.GAUSS:
-                tf = copy.deepcopy(func)
-                cent_vals.append(tf.gauss.center.value)
-                gauss_model.append(tf)
+    @Slot(bool)
+    def slt_set_enable_list_plot(self, state):
+        self.frm_list.setEnabled(state)
+        self.frm_plot.pb_region.setEnabled(state)
+        self.frm_plot.pb_set_region.setEnabled(state)
+        self.frm_open.setEnabled(state)
 
-        cent_vals = np.array(cent_vals)
-        arg_sort = np.argsort(cent_vals)
-        model_out = []
-        counter = 1
-        for i in arg_sort:
-            if gauss_model[i].visible:
-                gauss_model[i].name = f"Species {counter}"
-            else:
-                gauss_model[i].name = f"**Species {counter}**"
-            counter += 1
-            model_out.append(gauss_model[i])
-        if buffer is not None:
-            model_out = [buffer] + model_out
-        data_model.next_index = counter
-        data_model.model = model_out
-
-    def _reset_sp_list(self):
-        self._check_functions()
-        sp_list = self._get_sp_list()
-        self.frm_list.set_items(sp_list)
+    def _reset_list(self):
+        self.frm_list.set_items(self.all_data_model[self.scan_id].name_list)
         self.frm_ctrl.setEnabled(False)
+        n = self.frm_list.lw_items.count() - 1
+        self.frm_list.lw_items.setCurrentRow(n)
 
