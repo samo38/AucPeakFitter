@@ -1,33 +1,8 @@
 import numpy as np
+import scipy as sp
 import lmfit
 import copy
 import data_models as dms
-
-
-def get_y_x(x_arr: np.array, y_arr: np.array, x):
-    wh_1 = np.where(x_arr >= x)[0]
-    wh_2 = np.where(x_arr <= x)[0]
-    if len(wh_1) > 0:
-        id_1 = wh_1[0]
-    else:
-        id_1 = None
-    if len(wh_2) > 0:
-        id_2 = wh_2[-1]
-    else:
-        id_2 = None
-    if (id_1 is not None) and (id_2 is not None):
-        if id_1 == id_2:
-            return x_arr[id_1], y_arr[id_1]
-        else:
-            xx = 0.5 * (x_arr[id_1] + x_arr[id_2])
-            yy = 0.5 * (y_arr[id_1] + y_arr[id_2])
-            return xx, yy
-    elif id_1 is not None:
-        return x_arr[id_1], y_arr[id_1]
-    elif id_2 is not None:
-        return x_arr[id_2], y_arr[id_2]
-    else:
-        return None
 
 
 def get_exponential(x_arr, amplitude, decay):
@@ -45,7 +20,44 @@ class FitModel:
         self.fit = None
         self.prefix = []
 
-    def _build_params(self, params):
+    def _guess_init(self):
+        yy = copy.deepcopy(self.data_model.data.y_trim)
+        xx = copy.deepcopy(self.data_model.data.x_trim)
+        for i in range(len(self.data_model.model)):
+            func = self.data_model.model[i]
+            # func = dms.Function(dms.Types.GAUSS)
+            if not func.visible:
+                continue
+            if func.type == dms.Types.EXP:
+                if func.exp.amplitude.value is None or func.exp.decay.value is None:
+                    pref = 'exp_'
+                    self.prefix.append(pref)
+                    exp = lmfit.models.ExponentialModel(prefix=pref)
+                    params = exp.guess(yy, x=xx)
+                    decay_i = params.get('exp_decay').value
+                    amplitude_i = params.get('exp_amplitude').value
+                    y_exp = amplitude_i * np.exp(-1 * xx / decay_i)
+                    yy -= y_exp
+                    func.exp.amplitude.value = amplitude_i
+                    func.exp.decay.value = decay_i
+            elif func.type == dms.Types.GAUSS:
+                cent_val = func.gauss.center.value
+                cent_min = func.gauss.center.min
+                cent_max = func.gauss.center.max
+                if func.gauss.sigma.value is None:
+                    sigma_i = np.std(xx[np.logical_and(xx >= cent_min, xx <= cent_max)])
+                    func.gauss.sigma.value = sigma_i
+                if func.gauss.amplitude.value is None:
+                    sigma_i = func.gauss.sigma.value
+                    f = sp.interpolate.interp1d(xx, yy)
+                    y_cent_val = f(cent_val)
+                    amplitude_i = (y_cent_val * sigma_i * np.sqrt(2 * np.pi))
+                    func.gauss.amplitude.value = amplitude_i
+                    y_gauss = (amplitude_i / (sigma_i * np.sqrt(2 * np.pi)))
+                    y_gauss *= np.exp(-1 * (xx - cent_val) ** 2 / (2 * sigma_i ** 2))
+                    yy -= y_gauss
+
+    def _build_model(self, params):
         x = self.data_model.data.x_trim
         y = self.data_model.data.y_trim
         list_models = []
@@ -60,8 +72,15 @@ class FitModel:
                 pref = 'exp_'
                 self.prefix.append(pref)
                 exp = lmfit.models.ExponentialModel(prefix=pref)
-                params.update(exp.guess(y, x=x))
+                # params.update(exp.guess(y, x=x))
+                params.update(exp.make_params())
                 list_models.append(exp)
+                amplitude = func.exp.amplitude.value
+                amplitude_vary = not func.exp.amplitude.fixed
+                decay = func.exp.decay.value
+                decay_vary = not func.exp.decay.fixed
+                params[pref + 'amplitude'].set(value=amplitude, vary=amplitude_vary)
+                params[pref + 'decay'].set(value=decay, vary=decay_vary)
             elif func.type == dms.Types.GAUSS:
                 pref = f"gauss{i}_"
                 self.prefix.append(pref)
@@ -82,31 +101,19 @@ class FitModel:
                 cent_val = func.gauss.center.value
                 cent_min = func.gauss.center.min
                 cent_max = func.gauss.center.max
-
-                if sigma_vary:
-                    sigma = np.std(x[np.logical_and(x >= cent_min, x <= cent_max)])
-                else:
-                    sigma = func.gauss.sigma.value
-                if amplitude_vary:
-                    interp = get_y_x(x, y, cent_val)
-                    amplitude = 0.001
-                    if interp is not None:
-                        xx = interp[0]
-                        yy = interp[1]
-                        amplitude = (yy * sigma * np.sqrt(2 * np.pi)) / np.exp(-0.5 * ((xx - cent_val) / sigma) ** 2)
-                else:
-                    amplitude = func.gauss.amplitude.value
+                sigma = func.gauss.sigma.value
+                amplitude = func.gauss.amplitude.value
 
                 params[pref + 'center'].set(value=cent_val, min=cent_min, max=cent_max, vary=cent_vary)
                 if expression is None:
                     params[pref + 'sigma'].set(value=sigma, min=sigma / 100, vary=sigma_vary)
                 else:
                     params[pref + 'sigma'].set(value=sigma, min=sigma / 100, vary=sigma_vary, expr=expression)
-                params[pref + 'amplitude'].set(value=amplitude, min=1e-5, vary=amplitude_vary)
+                params[pref + 'amplitude'].set(value=amplitude, min=1e-6, vary=amplitude_vary)
                 list_models.append(gauss)
         return list_models
 
-    def _get_final_values(self):
+    def _final_values(self):
         x1 = self.data_model.data.x_trim[0]
         x2 = self.data_model.data.x_trim[-1]
         x_trim = self.data_model.data.x_trim
@@ -153,15 +160,16 @@ class FitModel:
         self.data_model.data.residual = yy_err - self.data_model.data.y_trim
 
     def init_fit(self):
+        self._guess_init()
         parameters = lmfit.Parameters()
-        list_models = self._build_params(parameters)
+        list_models = self._build_model(parameters)
         if len(list_models) == 0:
             return
         tot_models = list_models[0]
         for i in range(1, len(list_models)):
             tot_models += list_models[i]
         self.fit = tot_models.fit(self.data_model.data.y_trim, parameters, x=self.data_model.data.x_trim)
-        self._get_final_values()
+        self._final_values()
 
     def get_data_model(self):
         return copy.deepcopy(self.data_model)
