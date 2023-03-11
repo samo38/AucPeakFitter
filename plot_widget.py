@@ -80,10 +80,6 @@ class PlotWidget(QFrame):
         self.line_picker_trim = pyqtgraph.InfiniteLine(pen=pen, movable=True)
         # self.picker_raw.setZValue(-10)
 
-        # self.text_item = pyqtgraph.TextItem(" ", pyqtgraph.mkColor("white"), anchor=(1, 0))
-        # self.plt_error.addItem(self.text_item)
-        # self.text_item.setPos(0.1, 0.1)
-
         layout = QHBoxLayout()
         layout.setSpacing(1)
         layout.setContentsMargins(2, 2, 2, 2)
@@ -147,7 +143,9 @@ class PlotWidget(QFrame):
         dx = xr[1] - xr[0]
         dy = yr[1] - yr[0]
         pad = 0.1
-        text_item.setPos(xr[1] - dx * pad, yr[1] - dy * pad)
+        px = xr[1] - dx * pad
+        py = yr[1] - dy * pad
+        text_item.setPos(px, py)
         text_item.updateTextPos()
 
     def _pick_region_import(self, state: int):

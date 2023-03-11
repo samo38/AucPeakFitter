@@ -128,7 +128,8 @@ class DataModel:
         arg_sort = np.argsort(cent_vals)
         model_out = []
         for i in arg_sort:
-            model_out.append(gauss_model[i])
+            func = copy.deepcopy(gauss_model[i])
+            model_out.append(func)
         name_list = []
         for i in range(len(model_out)):
             if model_out[i].visible:
@@ -148,11 +149,13 @@ class DataModel:
                 model_out = [exp_model]
                 name_list = [exp_model.name]
 
+        self.name_list.clear()
         self.name_list = name_list
+        self.model.clear()
         self.model = model_out
 
     def set_model(self, model: list):
-        self.model = model
+        self.model = copy.deepcopy(model)
         self.sort_centers()
 
     def clear_modeled(self):

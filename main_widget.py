@@ -80,7 +80,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     @Slot(object)
     def slt_new_file(self, all_data):
-        self.all_data_model = all_data
+        self.all_data_model.clear()
+        self.all_data_model = copy.deepcopy(all_data)
         self.frm_plot.setEnabled(True)
         # self.frm_ctrl.setEnabled(True)
         self.frm_list.setEnabled(True)
@@ -167,7 +168,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setCursor(Qt.WaitCursor)
         fm = FitModel(self.all_data_model[self.scan_id])
         fm.init_fit()
-        fm.eval_components()
         dm = fm.get_data_model()
         self.setCursor(Qt.ArrowCursor)
         self.all_data_model[self.scan_id] = dm

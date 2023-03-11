@@ -30,6 +30,14 @@ def get_y_x(x_arr: np.array, y_arr: np.array, x):
         return None
 
 
+def get_exponential(x_arr, amplitude, decay):
+    return amplitude * np.exp(-1 * x_arr / decay)
+
+
+def get_gaussian(x_arr, amplitude, sigma, center):
+    return (amplitude / (sigma * np.sqrt(2 * np.pi))) * np.exp(-1 * (x_arr - center) ** 2 / (2 * sigma ** 2))
+
+
 class FitModel:
 
     def __init__(self, data_model: dms.DataModel):
@@ -99,28 +107,50 @@ class FitModel:
         return list_models
 
     def _get_final_values(self):
+        x1 = self.data_model.data.x_trim[0]
+        x2 = self.data_model.data.x_trim[-1]
+        x_trim = self.data_model.data.x_trim
+        xx = np.linspace(x1, x2, 1500)
+        yy_mod = np.zeros(len(xx), dtype=np.float)
+        yy_err = np.zeros(len(x_trim), dtype=np.float)
         params = self.fit.params
+        new_model = []
         for i in range(len(self.data_model.model)):
-            func = self.data_model.model[i]
+            func = copy.deepcopy(self.data_model.model[i])
             # func = dms.Function(dms.Types.GAUSS)
-            if not func.visible:
-                continue
             if func.type == dms.Types.EXP:
-                pref = 'exp_'
-                amplitude = params.get(pref + "amplitude")
-                decay = params.get(pref + "decay")
-                if amplitude.vary:
+                if func.visible:
+                    pref = 'exp_'
+                    amplitude = params.get(pref + "amplitude")
+                    decay = params.get(pref + "decay")
                     func.exp.amplitude.value = amplitude.value
-                if decay.vary:
                     func.exp.decay.value = decay.value
+                    yy = get_exponential(xx, amplitude.value, decay.value)
+                    func.set_xy(xx, yy)
+                    yy_mod += yy
+                    yy_err += get_exponential(x_trim, amplitude.value, decay.value)
+                else:
+                    func.clear_xy()
             elif func.type == dms.Types.GAUSS:
-                pref = f"gauss{i}_"
-                amplitude = params.get(pref + "amplitude")
-                center = params.get(pref + "center")
-                sigma = params.get(pref + "sigma")
-                func.gauss.amplitude.value = amplitude.value
-                func.gauss.center.value = center.value
-                func.gauss.sigma.value = sigma.value
+                if func.visible:
+                    pref = f"gauss{i}_"
+                    amplitude = params.get(pref + "amplitude")
+                    center = params.get(pref + "center")
+                    sigma = params.get(pref + "sigma")
+                    func.gauss.amplitude.value = amplitude.value
+                    func.gauss.center.value = center.value
+                    func.gauss.sigma.value = sigma.value
+                    yy = get_gaussian(xx, amplitude.value, sigma.value, center.value)
+                    func.set_xy(xx, yy)
+                    yy_mod += yy
+                    yy_err += get_gaussian(x_trim, amplitude.value, sigma.value, center.value)
+                else:
+                    func.clear_xy()
+            new_model.append(func)
+        self.data_model.set_model(new_model)
+        self.data_model.data.y_model = yy_mod
+        self.data_model.data.x_model = xx
+        self.data_model.data.residual = yy_err - self.data_model.data.y_trim
 
     def init_fit(self):
         parameters = lmfit.Parameters()
@@ -132,33 +162,6 @@ class FitModel:
             tot_models += list_models[i]
         self.fit = tot_models.fit(self.data_model.data.y_trim, parameters, x=self.data_model.data.x_trim)
         self._get_final_values()
-        self.data_model.sort_centers()
-
-    def eval_components(self, n_points=500):
-        if self.fit is None:
-            return
-        x1 = self.data_model.data.x_trim[0]
-        x2 = self.data_model.data.x_trim[-1]
-        x_arr = np.linspace(x1, x2, n_points)
-        self.data_model.data.x_model = x_arr
-        components = self.fit.eval_components(x=x_arr)
-        components_0 = self.fit.eval_components(x=self.data_model.data.x_trim)
-        yy = np.zeros(len(x_arr), dtype=np.float)
-        yy_0 = np.zeros(len(self.data_model.data.x_trim), dtype=np.float)
-        n = 0
-        for i in range(len(self.data_model.model)):
-            func = self.data_model.model[i]
-            # func = dms.Function(dms.Types.GAUSS)
-            if not func.visible:
-                func.clear_xy()
-            else:
-                y_comp = components[self.prefix[n]]
-                yy += y_comp
-                yy_0 += components_0[self.prefix[n]]
-                n += 1
-                func.set_xy(x_arr, y_comp)
-        self.data_model.data.y_model = yy
-        self.data_model.data.residual = yy_0 - self.data_model.data.y_trim
 
     def get_data_model(self):
         return copy.deepcopy(self.data_model)

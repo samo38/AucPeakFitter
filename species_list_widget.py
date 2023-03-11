@@ -55,8 +55,9 @@ class SpeciesList(QFrame, gui_species_list.Ui_Frame):
         self.sb_scans.clear()
         self.sb_scans.setMinimum(1)
         self.sb_scans.setMaximum(n)
-        self.sb_scans.valueChanged.connect(self.slt_scan_id)
         self.sb_scans.setValue(n)
+        self.sb_scans.valueChanged.connect(self.slt_scan_id)
+        self.sig_scan_id.emit(n - 1)
 
     def set_items(self, items: list):
         self.lw_items.itemClicked.disconnect(self.slt_item_clicked)
