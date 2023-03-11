@@ -28,8 +28,7 @@ def str_to_float(x: str):
 
 class GaussianControl(QWidget, gui_gaussian.Ui_Form):
 
-    sig_pick_line = Signal(int, float)
-    sig_pick_region = Signal(int, float, float)
+    sig_pick_params = Signal(int, float, float, float)
     sig_set_enable = Signal(bool)
 
     def __init__(self, parent=None):
@@ -38,11 +37,9 @@ class GaussianControl(QWidget, gui_gaussian.Ui_Form):
         self.gauss = dms.Gaussian()
         self.line = None
         self.region = None
-        self.line_state = False
-        self.region_state = False
 
-        self.pb_cent_val.clicked.connect(self.slt_pick_cent)
-        self.pb_cent_mm.clicked.connect(self.slt_pick_reg)
+        # self.pb_cent_val.clicked.connect(self.slt_pick_cent)
+        self.pb_cent_mm.clicked.connect(self.slt_pick_params)
         self.fix_sigma.stateChanged.connect(self.slt_fix_sigma)
         self.fix_amp.stateChanged.connect(self.slt_fix_amp)
 
@@ -65,54 +62,25 @@ class GaussianControl(QWidget, gui_gaussian.Ui_Form):
             self.le_sigma.setReadOnly(False)
 
     @Slot(bool)
-    def slt_pick_cent(self, checked):
-        if checked:
-            self.pb_cent_val.setText("Apply")
-            self.pb_cent_val.setStyleSheet(u"background-color: rgb(246, 97, 81);")
-            if self.line is None:
-                self.sig_pick_line.emit(1, -1)
-            else:
-                self.sig_pick_line.emit(1, self.line)
-            self.line_state = True
-            self._check_sig_set_enable()
-        else:
-            self.pb_cent_val.setText("Set")
-            self.pb_cent_val.setStyleSheet(u"background-color: ;")
-            self.sig_pick_line.emit(0, 0)
-            self.gauss.center.value = self.line
-            self.le_cent_val.setText(f"{self.line: .3f}")
-            self.le_cent_val.setCursorPosition(0)
-            self.line_state = False
-            self._check_sig_set_enable()
-
-    @Slot(bool)
-    def slt_pick_reg(self, checked):
+    def slt_pick_params(self, checked):
         if checked:
             self.pb_cent_mm.setText("Apply")
             self.pb_cent_mm.setStyleSheet(u"background-color: rgb(246, 97, 81);")
-            if self.region is None:
-                self.sig_pick_region.emit(1, -1, -1)
+            if self.region is None or self.line is None:
+                self.sig_pick_params.emit(1, -1, -1, -1)
             else:
-                self.sig_pick_region.emit(1, self.region[0], self.region[1])
-            self.region_state = True
-            self._check_sig_set_enable()
+                self.sig_pick_params.emit(1, self.line, self.region[0], self.region[1])
+            self.sig_set_enable.emit(False)
         else:
             self.pb_cent_mm.setText("Set")
             self.pb_cent_mm.setStyleSheet(u"background-color: ;")
-            self.sig_pick_region.emit(0, 0, 0)
-            val1 = self.region[0]
-            val2 = self.region[1]
-            self.gauss.center.min = val1
-            self.gauss.center.max = val2
-            self.le_cent_mm.setText(f"{val1:<.3f} - {val2:<.3f}")
+            self.sig_pick_params.emit(0, 0, 0, 0)
+            self.gauss.center.min = self.region[0]
+            self.gauss.center.max = self.region[1]
+            self.gauss.center.value = self.line
+            self.le_cent_val.setText(f"{self.line:<.3f}")
+            self.le_cent_mm.setText(f"{self.region[1]:<.3f} - {self.region[1]:<.3f}")
             self.le_cent_mm.setCursorPosition(0)
-            self.region_state = False
-            self._check_sig_set_enable()
-
-    def _check_sig_set_enable(self):
-        if self.line_state or self.region_state:
-            self.sig_set_enable.emit(False)
-        elif (self.line_state is False) and (self.line_state is False):
             self.sig_set_enable.emit(True)
 
     def set_line(self, value: float):

@@ -63,13 +63,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # plot frame
         self.frm_plot.sig_data_updated.connect(self.slt_update_data)
-        self.frm_plot.sig_line_picked.connect(self.slt_line_picked)
-        self.frm_plot.sig_region_picked.connect(self.slt_region_picked)
+        self.frm_plot.sig_line_region_picked.connect(self.sig_line_region_picked)
         self.frm_plot.sig_set_enable.connect(self.slt_set_enable_list_ctrl)
 
         # control frame
-        self.frm_ctrl.wg_gaus.sig_pick_line.connect(self.slt_pick_line)
-        self.frm_ctrl.wg_gaus.sig_pick_region.connect(self.slt_pick_region)
+        self.frm_ctrl.wg_gaus.sig_pick_params.connect(self.slt_pick_gauss_params)
         self.frm_ctrl.sig_add.connect(self.slt_add_species)
         self.frm_ctrl.sig_delete.connect(self.slt_delete_species)
         self.frm_ctrl.sig_update.connect(self.slt_update_species)
@@ -120,22 +118,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._reset_list()
 
     @Slot()
-    def slt_line_picked(self):
+    def sig_line_region_picked(self):
         self.line = self.frm_plot.get_line_value()
-        self.frm_ctrl.wg_gaus.set_line(self.line)
-
-    @Slot()
-    def slt_region_picked(self):
         self.region = self.frm_plot.get_region_values()
+        self.frm_ctrl.wg_gaus.set_line(self.line)
         self.frm_ctrl.wg_gaus.set_region(self.region)
 
-    @Slot(int, float)
-    def slt_pick_line(self, state, value):
-        self.frm_plot.pick_line_trim(state, value)
-
-    @Slot(int, float, float)
-    def slt_pick_region(self, state, value_1, value_2):
-        self.frm_plot.pick_region_trim(state, value_1, value_2)
+    @Slot(int, float, float, float)
+    def slt_pick_gauss_params(self, state, center, value_1, value_2):
+        self.frm_plot.pick_line_region_trim(state, center, value_1, value_2)
 
     @Slot()
     def slt_add_species(self):

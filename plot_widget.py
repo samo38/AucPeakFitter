@@ -19,8 +19,7 @@ import data_models as dms
 class PlotWidget(QFrame):
 
     sig_data_updated = Signal()
-    sig_line_picked = Signal()
-    sig_region_picked = Signal()
+    sig_line_region_picked = Signal()
     sig_set_enable = Signal(bool)
 
     def __init__(self, parent=None):
@@ -76,8 +75,9 @@ class PlotWidget(QFrame):
 
         pen = pyqtgraph.mkPen(color='w', width=2)
         self.region_picker_import = pyqtgraph.LinearRegionItem(pen=pen)
-        self.region_picker_trim = pyqtgraph.LinearRegionItem(pen=pen)
         self.line_picker_trim = pyqtgraph.InfiniteLine(pen=pen, movable=True)
+        pen.setStyle(Qt.DotLine)
+        self.region_picker_trim = pyqtgraph.LinearRegionItem(pen=pen)
         # self.picker_raw.setZValue(-10)
 
         layout = QHBoxLayout()
@@ -168,32 +168,25 @@ class PlotWidget(QFrame):
             self.sig_data_updated.emit()
             self.sig_set_enable.emit(True)
 
-    def pick_region_trim(self, state: int, x1: float, x2: float):
+    def pick_line_region_trim(self, state: int, line: float, x1: float, x2: float):
         if state == 1:  # connect picker
-            if x1 == -1 and x2 == -1:
+            if x1 == -1 and x2 == -1 and line == -1:
                 vr = self.plt_species.viewRange()[0]
                 x1, x2 = vr[0], vr[1]
                 dx = (x2 - x1) * 0.05
                 x1 += dx
                 x2 -= dx
+                line = 0.5 * (x1 + x2)
             self.region_picker_trim.setRegion([x1, x2])
+            self.line_picker_trim.setValue(line)
             self.plt_species.addItem(self.region_picker_trim)
+            self.plt_species.addItem(self.line_picker_trim)
         elif state == 0:  # accept and close picker
             self.region_values = self.region_picker_trim.getRegion()
-            self.plt_species.removeItem(self.region_picker_trim)
-            self.sig_region_picked.emit()
-
-    def pick_line_trim(self, state: int, value: float):
-        if state == 1:
-            if value == -1:
-                vr = self.plt_species.viewRange()[0]
-                value = 0.5 * (vr[0] + vr[1])
-            self.line_picker_trim.setValue(value)
-            self.plt_species.addItem(self.line_picker_trim)
-        elif state == 0:
             self.line_value = self.line_picker_trim.value()
+            self.plt_species.removeItem(self.region_picker_trim)
             self.plt_species.removeItem(self.line_picker_trim)
-            self.sig_line_picked.emit()
+            self.sig_line_region_picked.emit()
 
     def _plot_species(self, index=None):
         for i in range(len(self.data_model.model)):
