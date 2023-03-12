@@ -16,19 +16,19 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
-    QHBoxLayout, QLabel, QLineEdit, QSizePolicy,
-    QWidget)
+    QHBoxLayout, QLabel, QLineEdit, QPushButton,
+    QSizePolicy, QWidget)
 import resources_rc
 
 class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(492, 110)
-        Form.setMinimumSize(QSize(0, 110))
-        Form.setMaximumSize(QSize(16777215, 110))
+        Form.resize(400, 110)
+        Form.setMinimumSize(QSize(400, 110))
+        Form.setMaximumSize(QSize(400, 110))
         self.horizontalLayout = QHBoxLayout(Form)
-        self.horizontalLayout.setSpacing(0)
+        self.horizontalLayout.setSpacing(5)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.group = QGroupBox(Form)
@@ -62,7 +62,7 @@ class Ui_Form(object):
         self.le_amp.setObjectName(u"le_amp")
         self.le_amp.setMinimumSize(QSize(80, 0))
         self.le_amp.setMaximumSize(QSize(80, 16777215))
-        self.le_amp.setReadOnly(True)
+        self.le_amp.setReadOnly(False)
 
         self.gridLayout.addWidget(self.le_amp, 0, 3, 1, 1)
 
@@ -70,7 +70,7 @@ class Ui_Form(object):
         self.le_decay.setObjectName(u"le_decay")
         self.le_decay.setMinimumSize(QSize(80, 0))
         self.le_decay.setMaximumSize(QSize(80, 16777215))
-        self.le_decay.setReadOnly(True)
+        self.le_decay.setReadOnly(False)
 
         self.gridLayout.addWidget(self.le_decay, 1, 3, 1, 1)
 
@@ -92,6 +92,13 @@ class Ui_Form(object):
 
         self.horizontalLayout.addWidget(self.group, 0, Qt.AlignLeft)
 
+        self.pb_guess = QPushButton(Form)
+        self.pb_guess.setObjectName(u"pb_guess")
+        self.pb_guess.setMinimumSize(QSize(75, 0))
+        self.pb_guess.setMaximumSize(QSize(75, 16777215))
+
+        self.horizontalLayout.addWidget(self.pb_guess, 0, Qt.AlignLeft|Qt.AlignBottom)
+
 
         self.retranslateUi(Form)
 
@@ -107,5 +114,6 @@ class Ui_Form(object):
         self.fix_amp.setText(QCoreApplication.translate("Form", u"Fixed", None))
         self.fix_decay.setText(QCoreApplication.translate("Form", u"Fixed", None))
         self.label_5.setText(QCoreApplication.translate("Form", u"Value:", None))
+        self.pb_guess.setText(QCoreApplication.translate("Form", u"Guess", None))
     # retranslateUi
 
