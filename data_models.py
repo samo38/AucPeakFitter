@@ -2,6 +2,8 @@ import numpy as np
 import enum
 import copy
 
+N_POINTS = 2000
+
 
 class Types(enum.Enum):
     EMPTY = 0
@@ -28,6 +30,25 @@ class Gaussian:
         self.x = None
         self.y = None
 
+    def reset_xy(self, x=None):
+        if x is None:
+            self.x = None
+            self.y = None
+        amp = self.amplitude.value
+        cen = self.center.value
+        sig = self.sigma.value
+        b1 = amp is not None
+        b2 = cen is not None
+        b3 = sig is not None
+        if b1 and b2 and b3:
+            self.x = x
+            y = (amp / (sig * np.sqrt(2 * np.pi)))
+            y *= np.exp(-1 * (x - cen) ** 2 / (2 * sig ** 2))
+            self.y = y
+        else:
+            self.x = None
+            self.y = None
+
 
 class Exponential:
 
@@ -36,6 +57,21 @@ class Exponential:
         self.decay = Params()
         self.x = None
         self.y = None
+
+    def reset_xy(self, x=None):
+        if x is None:
+            self.x = None
+            self.y = None
+        amp = self.amplitude.value
+        dec = self.decay.value
+        b1 = amp is not None
+        b2 = dec is not None
+        if b1 and b2:
+            self.x = x
+            self.y = amp * np.exp(-1 * x / dec)
+        else:
+            self.x = None
+            self.y = None
 
 
 class Function:
@@ -53,17 +89,13 @@ class Function:
         self.exp.x = None
         self.exp.y = None
 
-    def set_xy(self, x: np.array, y: np.array):
+    def reset_xy(self, x: np.array):
         if self.type == Types.GAUSS:
-            self.exp.x = None
-            self.exp.y = None
-            self.gauss.x = x
-            self.gauss.y = y
+            self.exp.reset_xy()
+            self.gauss.reset_xy(x)
         elif self.type == Types.EXP:
-            self.exp.x = x
-            self.exp.y = y
-            self.gauss.x = None
-            self.gauss.y = None
+            self.exp.reset_xy(x)
+            self.gauss.reset_xy()
 
     def get_xy(self):
         if self.type == Types.GAUSS:
@@ -90,6 +122,9 @@ class Data:
     def set_trim(self, x: np.array, y: np.array):
         self.x_trim = x
         self.y_trim = y
+        self.x_model = np.linspace(x[0], x[-1], N_POINTS)
+        self.y_model = np.zeros(N_POINTS, dtype=np.float)
+        self.residual = None
 
 
 class DataModel:
@@ -165,4 +200,20 @@ class DataModel:
         for i in range(len(self.model)):
             self.model[i].clear_xy()
 
+    def reset_y_models(self):
+        xx = self.data.x_model
+        yy = np.zeros(len(xx), dtype=np.float)
+        if xx is None:
+            return
+        for func in self.model:
+            # func = Function()
+            func.reset_xy(xx)
+            xf, yf = func.get_xy()
+            yy += yf
+        self.data.y_model = yy
 
+    def reset_residual(self, y=None):
+        if y is None:
+            self.data.residual = None
+        else:
+            self.data.residual = y - self.data.y_trim
