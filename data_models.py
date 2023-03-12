@@ -27,6 +27,7 @@ class Gaussian:
         self.amplitude = Params()
         self.center = Params()
         self.sigma = Params()
+        self.main = False
         self.x = None
         self.y = None
 
@@ -42,12 +43,16 @@ class Gaussian:
         b3 = sig is not None
         if b1 and b2 and b3:
             self.x = x
-            y = (amp / (sig * np.sqrt(2 * np.pi)))
-            y *= np.exp(-1 * (x - cen) ** 2 / (2 * sig ** 2))
-            self.y = y
+            self.y = Gaussian.get_fx(x, amp, sig, cen)
         else:
             self.x = None
             self.y = None
+
+    @staticmethod
+    def get_fx(x, amplitude, sigma, center):
+        y = (amplitude / (sigma * np.sqrt(2 * np.pi)))
+        y *= np.exp(-1 * (x - center) ** 2 / (2 * sigma ** 2))
+        return y
 
 
 class Exponential:
@@ -68,10 +73,14 @@ class Exponential:
         b2 = dec is not None
         if b1 and b2:
             self.x = x
-            self.y = amp * np.exp(-1 * x / dec)
+            self.y = Exponential.get_fx(x, amp, dec)
         else:
             self.x = None
             self.y = None
+
+    @staticmethod
+    def get_fx(x, amplitude, decay):
+        return amplitude * np.exp(-1 * x / decay)
 
 
 class Function:
@@ -92,9 +101,15 @@ class Function:
     def reset_xy(self, x: np.array):
         if self.type == Types.GAUSS:
             self.exp.reset_xy()
-            self.gauss.reset_xy(x)
+            if self.visible:
+                self.gauss.reset_xy(x)
+            else:
+                self.gauss.reset_xy()
         elif self.type == Types.EXP:
-            self.exp.reset_xy(x)
+            if self.visible:
+                self.exp.reset_xy(x)
+            else:
+                self.exp.reset_xy()
             self.gauss.reset_xy()
 
     def get_xy(self):
@@ -111,7 +126,6 @@ class Data:
         self.y_raw = None
         self.x_trim = None
         self.y_trim = None
-        self.x_model = None
         self.y_model = None
         self.residual = None
 
@@ -122,8 +136,7 @@ class Data:
     def set_trim(self, x: np.array, y: np.array):
         self.x_trim = x
         self.y_trim = y
-        self.x_model = np.linspace(x[0], x[-1], N_POINTS)
-        self.y_model = np.zeros(N_POINTS, dtype=np.float)
+        self.y_model = None
         self.residual = None
 
 
@@ -151,6 +164,7 @@ class DataModel:
 
         gauss_model = []
         cent_vals = []
+        self.next_index = 1
         for i in range(len(self.model)):
             # func = dms.Function(dms.Types.GAUSS)
             func = self.model[i]
@@ -158,6 +172,7 @@ class DataModel:
                 tf = copy.deepcopy(func)
                 cent_vals.append(tf.gauss.center.value)
                 gauss_model.append(tf)
+                self.next_index += 1
 
         cent_vals = np.array(cent_vals)
         arg_sort = np.argsort(cent_vals)
@@ -201,19 +216,31 @@ class DataModel:
             self.model[i].clear_xy()
 
     def reset_y_models(self):
-        xx = self.data.x_model
-        yy = np.zeros(len(xx), dtype=np.float)
-        if xx is None:
-            return
+        x1 = self.data.x_trim[0]
+        x2 = self.data.x_trim[-1]
+        x = self.data.x_trim
+        xx = np.linspace(x1, x2, N_POINTS)
+        y = np.zeros(len(x), dtype=np.float)
+        model = False
         for func in self.model:
             # func = Function()
             func.reset_xy(xx)
-            xf, yf = func.get_xy()
-            yy += yf
-        self.data.y_model = yy
-
-    def reset_residual(self, y=None):
-        if y is None:
-            self.data.residual = None
-        else:
+            if not func.visible:
+                continue
+            if func.type == Types.GAUSS:
+                amp = func.gauss.amplitude.value
+                sig = func.gauss.sigma.value
+                cen = func.gauss.center.value
+                y += Gaussian.get_fx(x, amp, sig, cen)
+                model = True
+            elif func.type == Types.EXP:
+                amp = func.exp.amplitude.value
+                dec = func.exp.decay.value
+                y += Exponential.get_fx(x, amp, dec)
+                model = True
+        if model:
+            self.data.y_model = y
             self.data.residual = y - self.data.y_trim
+        else:
+            self.data.y_model = None
+            self.data.residual = None
