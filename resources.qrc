@@ -3,7 +3,6 @@
     <file>Resources/Font/Heebo-VariableFont_wght.ttf</file>
   </qresource>
   <qresource prefix="Icon">
-    <file>Resources/Icons/keyboard_return_FILL0_wght400_GRAD0_opsz48.svg</file>
     <file>Resources/Icons/add_FILL0_wght400_GRAD0_opsz48.svg</file>
     <file>Resources/Icons/App_t.png</file>
     <file>Resources/Icons/cancel_FILL0_wght400_GRAD0_opsz48.svg</file>
@@ -13,6 +12,8 @@
     <file>Resources/Icons/edit_FILL0_wght400_GRAD0_opsz48.svg</file>
     <file>Resources/Icons/file_open_FILL0_wght400_GRAD0_opsz48.svg</file>
     <file>Resources/Icons/horizontal_distribute_FILL0_wght400_GRAD0_opsz48.svg</file>
+    <file>Resources/Icons/keyboard_return_FILL0_wght400_GRAD0_opsz48.svg</file>
+    <file>Resources/Icons/refresh_FILL0_wght400_GRAD0_opsz48.svg</file>
     <file>Resources/Icons/save_as_FILL0_wght400_GRAD0_opsz48.svg</file>
     <file>Resources/Icons/sprint_FILL0_wght400_GRAD0_opsz48.svg</file>
     <file>Resources/Icons/text_snippet_FILL0_wght400_GRAD0_opsz48.svg</file>

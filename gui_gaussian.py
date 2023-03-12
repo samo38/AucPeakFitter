@@ -143,15 +143,13 @@ class Ui_Form(object):
 
         self.gridLayout.addWidget(self.bound_sigma, 1, 4, 1, 1)
 
+        self.main_sigma = QCheckBox(self.group)
+        self.main_sigma.setObjectName(u"main_sigma")
+
+        self.gridLayout.addWidget(self.main_sigma, 1, 5, 1, 1)
+
 
         self.horizontalLayout.addWidget(self.group, 0, Qt.AlignLeft)
-
-        self.pb_guess = QPushButton(Form)
-        self.pb_guess.setObjectName(u"pb_guess")
-        self.pb_guess.setMinimumSize(QSize(75, 0))
-        self.pb_guess.setMaximumSize(QSize(75, 16777215))
-
-        self.horizontalLayout.addWidget(self.pb_guess, 0, Qt.AlignLeft|Qt.AlignBottom)
 
 
         self.retranslateUi(Form)
@@ -174,6 +172,6 @@ class Ui_Form(object):
         self.fix_center.setText(QCoreApplication.translate("Form", u"Fixed", None))
         self.label.setText(QCoreApplication.translate("Form", u"Center ( \u03bc ):", None))
         self.bound_sigma.setText(QCoreApplication.translate("Form", u"Bound", None))
-        self.pb_guess.setText(QCoreApplication.translate("Form", u"Guess", None))
+        self.main_sigma.setText(QCoreApplication.translate("Form", u"Main", None))
     # retranslateUi
 

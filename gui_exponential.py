@@ -16,8 +16,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
-    QHBoxLayout, QLabel, QLineEdit, QPushButton,
-    QSizePolicy, QWidget)
+    QHBoxLayout, QLabel, QLineEdit, QSizePolicy,
+    QWidget)
 import resources_rc
 
 class Ui_Form(object):
@@ -92,13 +92,6 @@ class Ui_Form(object):
 
         self.horizontalLayout.addWidget(self.group, 0, Qt.AlignLeft)
 
-        self.pb_guess = QPushButton(Form)
-        self.pb_guess.setObjectName(u"pb_guess")
-        self.pb_guess.setMinimumSize(QSize(75, 0))
-        self.pb_guess.setMaximumSize(QSize(75, 16777215))
-
-        self.horizontalLayout.addWidget(self.pb_guess, 0, Qt.AlignLeft|Qt.AlignBottom)
-
 
         self.retranslateUi(Form)
 
@@ -114,6 +107,5 @@ class Ui_Form(object):
         self.fix_amp.setText(QCoreApplication.translate("Form", u"Fixed", None))
         self.fix_decay.setText(QCoreApplication.translate("Form", u"Fixed", None))
         self.label_5.setText(QCoreApplication.translate("Form", u"Value:", None))
-        self.pb_guess.setText(QCoreApplication.translate("Form", u"Guess", None))
     # retranslateUi
 
