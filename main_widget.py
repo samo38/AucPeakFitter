@@ -75,6 +75,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.frm_list.pb_run.clicked.connect(self.slt_run)
         self.frm_open.pb_update.clicked.connect(self.slt_update_app)
+        self.frm_list.pb_report.clicked.connect(self.slt_report)
 
     @Slot(object)
     def slt_new_file(self, all_data):
@@ -214,6 +215,70 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.frm_plot.pb_set_region.setEnabled(state)
         self.frm_open.setEnabled(state)
 
+    @Slot()
+    def slt_report(self):
+        # checking
+        data_model = self.all_data_model[self.scan_id]
+        if data_model.data.y_model is None or data_model.data.residual is None:
+            QMessageBox.warning(self, "warning!", "Fit a model, then try again!")
+            return
+        flag = True
+        for i in range(len(data_model.model)):
+            func = data_model.model[i]
+            if not func.visible:
+                continue
+            if func.type == dms.Types.EXP:
+                if func.exp.x is None or func.exp.y is None:
+                    flag = False
+                    break
+            elif func.type == dms.Types.GAUSS:
+                if func.gauss.x is None or func.gauss.y is None:
+                    flag = False
+                    break
+        if not flag:
+            QMessageBox.warning(self, "warning!", "Fit a model, then try again!")
+            return
+
+        home_dir = QDir.homePath()
+        dialog_output = QFileDialog.getSaveFileName(self, "Report Results", home_dir, "(*.dat)")
+        file_name = dialog_output[0]
+        if len(file_name) == 0:
+            return
+        if not file_name.endswith(".dat"):
+            file_name += ".dat"
+        with open(file_name, 'w') as fid:
+            fid.write(f"# Exponential Model : f(x) = A . e^[-x / Tau] , A: amplitude, Tau: decay\n")
+            fid.write(f"# Gaussian Model : f(x) = (A / (Sigma . sqrt(2 . pi)) . ")
+            fid.write(f"e ^ [-0.5 . (x - Mu)^2 / Sigma^2] , A: amplitude, Sigma: standard deviation, Mu: center\n#\n")
+            area_raw = np.trapz(data_model.data.y_trim, data_model.data.x_trim)
+            area_model = np.trapz(data_model.data.y_model, data_model.data.x_trim)
+            rmsd = np.sqrt(np.mean(data_model.data.residual ** 2))
+            for i in range(len(data_model.model)):
+                func = data_model.model[i]
+                # func = dms.Function()
+                if not func.visible:
+                    continue
+                fid.write(f"# {func.name: <11s}: ")
+                line = ''
+                if func.type == dms.Types.EXP:
+                    amp = func.exp.amplitude.value
+                    dec = func.exp.decay.value
+                    area = np.trapz(func.exp.y, func.exp.x)
+                    line = f"A = {amp:>14.6e} ,   Tau = {dec:>14.6e} , " + " " * 14
+                    line += f"Area = {area:>14.6e} , Ratio = {area / area_model * 100:>6.2f} %\n"
+                elif func.type == dms.Types.GAUSS:
+                    amp = func.gauss.amplitude.value
+                    sig = func.gauss.sigma.value
+                    cen = func.gauss.center.value
+                    area = np.trapz(func.gauss.y, func.gauss.x)
+                    line = f"A = {amp:>14.6e} , Sigma = {sig:>14.6e} , Mu = {cen:>6.3f} , "
+                    line += f"Area = {area:>14.6e} , Ratio = {area / area_model * 100:>6.2f} %\n"
+                fid.write(line)
+            line = f"# Total Area of Raw Data     = {area_raw:>14.6e}\n"
+            line += f"# Total Area of Modeled Data = {area_model:>14.6e}\n"
+            line += f"# RMSD = {rmsd:.8f}\n#\n"
+            fid.write(line)
+
     def reset_list(self):
         self.frm_list.set_items(self.all_data_model[self.scan_id].name_list)
         self.frm_ctrl.setEnabled(False)
@@ -284,6 +349,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     y_cent = y_r[np.argmin(np.abs(x - cent))]
                     sig = dx * sigma_factor
                     amp = y_cent * sig * np.sqrt(2 * np.pi)
+                    amp = max(1e-4, abs(amp))
                     func.gauss.sigma.value = sig
                     func.gauss.amplitude.value = amp
                 # ym += dms.Gaussian.get_fx(x, amplitude=amp, sigma=sig, center=cent)
@@ -317,12 +383,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         if amp is None:
                             y_cent = y_r[np.argmin(np.abs(x - cent))]
                             amp = y_cent * sig * np.sqrt(2 * np.pi)
+                            amp = max(1e-4, abs(amp))
                             func.gauss.amplitude.value = amp
                 else:
                     if amp is None or sig is None:
                         y_cent = y_r[np.argmin(np.abs(x - cent))]
                         sig = dx * sigma_factor
                         amp = y_cent * sig * np.sqrt(2 * np.pi)
+                        amp = max(1e-4, abs(amp))
                         func.gauss.sigma.value = sig
                         func.gauss.amplitude.value = amp
                 # ym += dms.Gaussian.get_fx(x, amplitude=amp, sigma=sig, center=cent)
