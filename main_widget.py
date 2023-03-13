@@ -7,9 +7,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
+from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel, QComboBox, QLineEdit,
     QListWidget, QListWidgetItem, QPushButton, QSizePolicy, QFileDialog, QMessageBox,
-    QSpinBox, QVBoxLayout, QWidget, QMainWindow, QTextEdit, QDialog, QStyle)
+    QSpinBox, QVBoxLayout, QGridLayout, QWidget, QMainWindow, QTextEdit, QDialog, QStyle)
 from PySide6.QtCore import (Slot, Signal)
 import os
 import sys
@@ -19,6 +19,17 @@ from gui_main_window import Ui_MainWindow
 import data_models as dms
 from fit_model import FitModel
 import lmfit
+
+
+def trapezoid(x, y, alpha):
+    dx = np.diff(x)
+    dx2 = np.diff(x ** 2)
+    mid = 0.5 * (y[1:] + y[0:-1])
+    jacobi = (alpha / 360) * np.pi * dx2
+    area = np.sum(mid * dx)
+    volume = np.sum(jacobi * mid * dx)
+    return area, volume
+
 
 class UpdateBox(QDialog):
 
@@ -37,6 +48,101 @@ class UpdateBox(QDialog):
         lyt.addWidget(self.pb_close, 0, Qt.AlignHCenter)
         self.setLayout(lyt)
         self.pb_close.clicked.connect(self.close)
+
+
+class Centerpiece(QDialog):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Centerpiece Selection")
+        # self.setMinimumSize(600, 400)
+        self.centerpiece = {"Simulation 1-channel standard": 2.5,
+                            "Epon 2-channel standard": 2.5,
+                            "Aluminum 2-channel standard": 2.5,
+                            "Titanium 2-channel standard": 2.5,
+                            "Epon 2-channel band forming": 2.5,
+                            "Epon-Helmut 2-channel band forming": 2.5,
+                            "SVEL60 2-channel standard": 2,
+                            "SVEL60 2-channel meniscus matching": 2,
+                            "Titanium 2-channel 6 mm": 2.5,
+                            "Titanium 2-channel 3 mm": 2.5,
+                            "Custom": None}
+        self.angle = None
+        lb_list = QLabel("Centerpiece:")
+        font = lb_list.font()
+        font.setBold(True)
+        lb_list.setFont(font)
+        lb_angle = QLabel("Angle:")
+        lb_angle.setFont(font)
+        self.cb_list = QComboBox()
+        for key in self.centerpiece.keys():
+            self.cb_list.addItem(key)
+        self.le_angle = QLineEdit("")
+        self.le_angle.setReadOnly(True)
+        pb_close = QPushButton("Close")
+        self.pb_apply = QPushButton("Apply")
+        pixmap_close = QStyle.StandardPixmap.SP_DialogCloseButton
+        pixmap_apply = QStyle.StandardPixmap.SP_DialogApplyButton
+        icon_close = self.style().standardIcon(pixmap_close)
+        icon_apply = self.style().standardIcon(pixmap_apply)
+        pb_close.setIcon(icon_close)
+        self.pb_apply.setIcon(icon_apply)
+        lyt = QVBoxLayout()
+        lyt1 = QHBoxLayout()
+        lyt1.addWidget(lb_list)
+        lyt1.addWidget(self.cb_list)
+        lyt1.addWidget(lb_angle)
+        lyt1.addWidget(self.le_angle)
+        lyt2 = QHBoxLayout()
+        lyt2.addStretch(1)
+        lyt2.addWidget(pb_close)
+        lyt2.addWidget(self.pb_apply)
+        lyt.addLayout(lyt1)
+        lyt.addStretch(1)
+        lyt.addLayout(lyt2)
+        self.setLayout(lyt)
+        pb_close.clicked.connect(self.slt_close)
+        self.pb_apply.clicked.connect(self.slt_apply)
+        self.le_angle.editingFinished.connect(self.slt_new_angle)
+        self.cb_list.currentTextChanged.connect(self.slt_change)
+        self.cb_list.setCurrentText("Epon 2-channel standard")
+
+    @Slot()
+    def slt_close(self):
+        self.angle = None
+        self.close()
+
+    @Slot()
+    def slt_apply(self):
+        self.accept()
+
+    @Slot()
+    def slt_new_angle(self):
+        text = self.le_angle.text()
+        self.angle = None
+        try:
+            a = float(text)
+            self.angle = a
+        except (TypeError, ValueError):
+            pass
+        if self.angle is None:
+            self.pb_apply.setDisabled(True)
+            self.le_angle.clear()
+        else:
+            self.pb_apply.setEnabled(True)
+
+    @Slot(str)
+    def slt_change(self, text):
+        value = self.centerpiece.get(text)
+        if value is None:
+            self.le_angle.clear()
+            self.pb_apply.setDisabled(True)
+            self.le_angle.setReadOnly(False)
+        else:
+            self.angle = value
+            self.pb_apply.setEnabled(True)
+            self.le_angle.setReadOnly(True)
+            self.le_angle.setText(f"{value}")
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -239,6 +345,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QMessageBox.warning(self, "warning!", "Fit a model, then try again!")
             return
 
+        w = Centerpiece()
+        w.exec()
+        angle = w.angle
+        if angle is None:
+            return
+        centerpiece = w.cb_list.currentText()
+
         home_dir = QDir.homePath()
         dialog_output = QFileDialog.getSaveFileName(self, "Report Results", home_dir, "(*.dat)")
         file_name = dialog_output[0]
@@ -249,9 +362,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         with open(file_name, 'w') as fid:
             fid.write(f"# Exponential Model : f(x) = A . e^[-x / Tau] , A: amplitude, Tau: decay\n")
             fid.write(f"# Gaussian Model : f(x) = (A / (Sigma . sqrt(2 . pi)) . ")
-            fid.write(f"e ^ [-0.5 . (x - Mu)^2 / Sigma^2] , A: amplitude, Sigma: standard deviation, Mu: center\n#\n")
-            area_raw = np.trapz(data_model.data.y_trim, data_model.data.x_trim)
-            area_model = np.trapz(data_model.data.y_model, data_model.data.x_trim)
+            fid.write(f"e ^ [-0.5 . (x - Mu)^2 / Sigma^2] , A: amplitude, Sigma: standard deviation, Mu: center\n")
+            fid.write(f"# Centerpiece = {centerpiece}, Angle = {angle}\n#\n")
+            fid.write(f"# Area   = Sum( 0.5 * ( Y[i + 1] - Y[i] ) * ( X[i + 1] - X[i] ) )\n")
+            fid.write(f"# Jacobi = ( Angle / 360 ) * PI * ( X[i + 1]^2 - X[i]^2 )\n")
+            fid.write(f"# Volume = Sum( 0.5 * ( Y[i + 1] - Y[i] ) * Jacobi * ( X[i + 1] - X[i] ) )\n#\n#\n")
+            area_raw, volume_raw = trapezoid(data_model.data.x_trim, data_model.data.y_trim, angle)
+            area_model, volume_model = trapezoid(data_model.data.x_trim, data_model.data.y_model, angle)
             rmsd = np.sqrt(np.mean(data_model.data.residual ** 2))
             for i in range(len(data_model.model)):
                 func = data_model.model[i]
@@ -263,21 +380,72 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if func.type == dms.Types.EXP:
                     amp = func.exp.amplitude.value
                     dec = func.exp.decay.value
-                    area = np.trapz(func.exp.y, func.exp.x)
-                    line = f"A = {amp:>14.6e} ,   Tau = {dec:>14.6e} , " + " " * 14
-                    line += f"Area = {area:>14.6e} , Ratio = {area / area_model * 100:>6.2f} %\n"
+                    area, volume = trapezoid(func.exp.x, func.exp.y, angle)
+                    line = f"A = {amp:>14.6e} ,   Tau = {dec:>14.6e} , " + " " * 12
+                    line += f", Area = {area:>14.6e} , Volume = {volume:>14.6e} , "
+                    line += f"Ratio = {volume / volume_model * 100:>6.2f} %\n"
                 elif func.type == dms.Types.GAUSS:
                     amp = func.gauss.amplitude.value
                     sig = func.gauss.sigma.value
                     cen = func.gauss.center.value
-                    area = np.trapz(func.gauss.y, func.gauss.x)
+                    area, volume = trapezoid(func.gauss.x, func.gauss.y, angle)
                     line = f"A = {amp:>14.6e} , Sigma = {sig:>14.6e} , Mu = {cen:>6.3f} , "
-                    line += f"Area = {area:>14.6e} , Ratio = {area / area_model * 100:>6.2f} %\n"
+                    line += f"Area = {area:>14.6e} , Volume = {volume:>14.6e} , "
+                    line += f"Ratio = {volume / volume_model * 100:>6.2f} %\n"
                 fid.write(line)
-            line = f"# Total Area of Raw Data     = {area_raw:>14.6e}\n"
-            line += f"# Total Area of Modeled Data = {area_model:>14.6e}\n"
-            line += f"# RMSD = {rmsd:.8f}\n#\n"
+            line = "#\n#\n"
+            line += f"# Total Area of Raw Data       = {area_raw:>14.6e}\n"
+            line += f"# Total Area of Modeled Data   = {area_model:>14.6e}\n"
+            line += f"# Total Volume of Modeled Data = {volume_raw:>14.6e}\n"
+            line += f"# Total Volume of Modeled Data = {volume_model:>14.6e}\n"
+            line += f"# RMSD = {rmsd:.8f}\n#\n#\n"
             fid.write(line)
+            # write data
+            line = 'x_raw, y_raw, y_model, residual'
+            counter = 1
+            xm_arr = []
+            ym_arr = []
+            for i in range(len(data_model.model)):
+                func = data_model.model[i]
+                if func.type == dms.Types.EXP and func.visible:
+                    line += ', buffer_x, buffer_y'
+                    x, y = func.get_xy()
+                    xm_arr.append(x)
+                    ym_arr.append(y)
+                elif func.type == dms.Types.GAUSS and func.visible:
+                    line += f", sp_{counter}_x, sp_{counter}_y"
+                    counter += 1
+                    x, y = func.get_xy()
+                    xm_arr.append(x)
+                    ym_arr.append(y)
+            fid.write(line + "\n")
+            n_l = len(data_model.data.x_trim)
+            m_l = dms.N_POINTS
+            n = 0
+            m = 0
+            min_th = 1e-8
+            while True:
+                if n >= n_l and m >= m_l:
+                    break
+                if n < n_l:
+                    x = data_model.data.x_trim[n]
+                    y = data_model.data.y_trim[n]
+                    y = y if y > min_th else 0
+                    ym = data_model.data.y_model[n]
+                    ym = ym if ym > min_th else 0
+                    r = data_model.data.residual[n]
+                    r = r if r > min_th else 0
+                    n += 1
+                    line = f"{x: .3f},{y: .6e},{ym: .6e},{r: .6e}"
+                else:
+                    line = " , , , "
+                for i in range(len(xm_arr)):
+                    x = xm_arr[i][m]
+                    y = ym_arr[i][m]
+                    y = y if y > min_th else 0
+                    line += f",{x: .3f},{y: .6e}"
+                m += 1
+                fid.write(line + "\n")
 
     def reset_list(self):
         self.frm_list.set_items(self.all_data_model[self.scan_id].name_list)
