@@ -300,10 +300,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         app_path = os.path.dirname(os.path.abspath(__file__))
         py_exe = sys.executable
         setup_script = os.path.join(app_path, "setup_tools.py")
-        p_1 = subprocess.run(['git', '-C', app_path, 'pull'], capture_output=True, text=True)
-        p_2 = subprocess.run([py_exe, setup_script], capture_output=True, text=True)
+        p_1 = subprocess.run(['git', '-C', app_path, 'stash'], capture_output=True, text=True)
+        p_2 = subprocess.run(['git', '-C', app_path, 'pull'], capture_output=True, text=True)
+        p_3 = subprocess.run([py_exe, setup_script], capture_output=True, text=True)
+        text = p_1.stdout + "\n\n" + p_2.stdout + "\n\n" + p_3.stdout + "\n\n"
         mess_box = UpdateBox()
-        mess_box.text_edit.setText(p_1.stdout + "\n\n" + p_2.stdout)
+        mess_box.text_edit.setText(text)
         mess_box.exec()
         self.close()
 
