@@ -40,6 +40,7 @@ class SpeciesControl(QFrame, gui_species_control.Ui_Frame):
         self.func = dms.Function(dms.Types.EMPTY)
         self.func_0 = dms.Function(dms.Types.EMPTY)
 
+        self.turnoff_main = False
         self.vis_state = True
         self.cmb_type.currentTextChanged.connect(self.slt_change_function)
         self.pb_deflt.clicked.connect(self.slt_default)
@@ -143,7 +144,7 @@ class SpeciesControl(QFrame, gui_species_control.Ui_Frame):
 
     def __fill_widget(self):
         if self.func.type == dms.Types.GAUSS:
-            self.wg_gaus.fill_widget(self.func.gauss)
+            self.wg_gaus.fill_widget(self.func.gauss, self.turnoff_main)
         elif self.func.type == dms.Types.EXP:
             self.wg_exp.fill_widget(self.func.exp)
 
@@ -161,7 +162,8 @@ class SpeciesControl(QFrame, gui_species_control.Ui_Frame):
             self.pb_new.setStyleSheet("background-color: rgb(249, 240, 107);")
             self.state_new = False
 
-    def setup(self, index: int, func=None):
+    def setup(self, index: int, func=None, turnoff_main=False):
+        self.turnoff_main = turnoff_main
         if func is None:
             self.func = dms.Function(dms.Types.GAUSS)
             self.func_0 = dms.Function(dms.Types.GAUSS)

@@ -238,7 +238,7 @@ class PlotWidget(QFrame):
         if self.data_model.data.y_model is not None:
             curve_m = self.plt_model.plot(pen=pyqtgraph.mkPen(color='magenta', width=2))
             curve_r = self.plt_error.plot(pen='g')
-            curve_m.setData(self.data_model.data.x_model, self.data_model.data.y_model)
+            curve_m.setData(self.data_model.data.x_trim, self.data_model.data.y_model)
             curve_r.setData(self.data_model.data.x_trim, self.data_model.data.residual)
             rmsd = np.sqrt(np.mean(self.data_model.data.residual ** 2))
             px = np.max(self.data_model.data.x_trim)

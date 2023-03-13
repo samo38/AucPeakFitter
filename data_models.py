@@ -190,6 +190,8 @@ class DataModel:
                 model_out[i].name = name
             if model_out[i].gauss.sigma.bound:
                 name += " - bound"
+            elif model_out[i].gauss.main:
+                name += " - main"
             name_list.append(name)
         if exp_model is not None:
             if len(model_out) > 0:
@@ -209,7 +211,6 @@ class DataModel:
         self.sort_centers()
 
     def clear_modeled(self):
-        self.data.y_model = None
         self.data.y_model = None
         self.data.residual = None
         for i in range(len(self.model)):

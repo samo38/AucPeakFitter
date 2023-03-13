@@ -40,26 +40,55 @@ class GaussianControl(QWidget, gui_gaussian.Ui_Form):
 
         # self.pb_cent_val.clicked.connect(self.slt_pick_cent)
         self.pb_cent_mm.clicked.connect(self.slt_pick_params)
+        self.fix_center.stateChanged.connect(self.slt_fix_center)
         self.fix_sigma.stateChanged.connect(self.slt_fix_sigma)
         self.fix_amp.stateChanged.connect(self.slt_fix_amp)
+        self.bound_sigma.stateChanged.connect(self.slt_bound_sigma)
+        self.main_sigma.stateChanged.connect(self.slt_main_sigma)
+        self.le_amp.editingFinished.connect(self.slt_new_amplitude)
+        self.le_sigma.editingFinished.connect(self.slt_new_sigma)
+
+    @Slot(int)
+    def slt_fix_center(self, state):
+        if state == Qt.Unchecked.value:
+            self.gauss.center.fixed = False
+        elif state == Qt.Checked.value:
+            self.gauss.center.fixed = True
 
     @Slot(int)
     def slt_fix_amp(self, state):
         if state == Qt.Unchecked.value:
-            self.le_amp.clear()
-            self.le_amp.setReadOnly(True)
+            self.gauss.amplitude.fixed = False
         elif state == Qt.Checked.value:
-            self.le_amp.clear()
-            self.le_amp.setReadOnly(False)
+            self.gauss.amplitude.fixed = True
 
     @Slot(int)
     def slt_fix_sigma(self, state):
         if state == Qt.Unchecked.value:
-            self.le_sigma.clear()
-            self.le_sigma.setReadOnly(True)
+            self.gauss.sigma.fixed = False
         elif state == Qt.Checked.value:
-            self.le_sigma.clear()
-            self.le_sigma.setReadOnly(False)
+            self.gauss.sigma.fixed = True
+
+    @Slot(int)
+    def slt_bound_sigma(self, state):
+        if state == Qt.Unchecked.value:
+            self.gauss.sigma.bound = False
+            self.fix_sigma.setChecked(False)
+            self.fix_sigma.setEnabled(True)
+        elif state == Qt.Checked.value:
+            self.gauss.sigma.bound = True
+            self.fix_sigma.setChecked(True)
+            self.fix_sigma.setDisabled(True)
+
+    @Slot(int)
+    def slt_main_sigma(self, state):
+        if state == Qt.Unchecked.value:
+            self.gauss.main = False
+            self.bound_sigma.setEnabled(True)
+        elif state == Qt.Checked.value:
+            self.gauss.main = True
+            self.bound_sigma.setChecked(False)
+            self.bound_sigma.setDisabled(True)
 
     @Slot(bool)
     def slt_pick_params(self, checked):
@@ -83,14 +112,52 @@ class GaussianControl(QWidget, gui_gaussian.Ui_Form):
             self.le_cent_mm.setCursorPosition(0)
             self.sig_set_enable.emit(True)
 
+    @Slot()
+    def slt_new_amplitude(self):
+        n = str_to_float(self.le_amp.text())
+        if n is None:
+            self.gauss.amplitude.value = None
+        elif n is False:
+            amp = self.gauss.amplitude.value
+            if amp is None:
+                self.le_amp.clear()
+            else:
+                self.le_amp.setText(f"{amp: .2e}")
+        else:
+            self.gauss.amplitude.value = n
+
+    @Slot()
+    def slt_new_sigma(self):
+        n = str_to_float(self.le_sigma.text())
+        if n is None:
+            self.gauss.sigma.value = None
+        elif n is False:
+            sigma = self.gauss.sigma.value
+            if sigma is None:
+                self.le_sigma.clear()
+            else:
+                self.le_sigma.setText(f"{sigma: .2e}")
+        else:
+            self.gauss.sigma.value = n
+
     def set_line(self, value: float):
         self.line = value
 
     def set_region(self, values: tuple):
         self.region = values
 
-    def fill_widget(self, func: dms.Gaussian):
+    def fill_widget(self, func: dms.Gaussian, turnoff_main):
         self.gauss = copy.deepcopy(func)
+        if turnoff_main:
+            self.main_sigma.setChecked(False)
+            self.main_sigma.setEnabled(False)
+        else:
+            if self.gauss.main:
+                self.main_sigma.setChecked(True)
+            else:
+                self.main_sigma.setChecked(False)
+            self.main_sigma.setEnabled(True)
+
         amp_fixed = self.gauss.amplitude.fixed
         amp_val = self.gauss.amplitude.value
 
@@ -132,38 +199,12 @@ class GaussianControl(QWidget, gui_gaussian.Ui_Form):
             self.le_sigma.setText(f"{sigma_val: .2e}")
 
     def get_params(self):
-        if len(self.le_cent_val.text()) == 0:
-            QMessageBox.warning(self, "Error!", "Set the value of the Gaussian center!")
+        s = self.gauss.center.value is None
+        s = s or self.gauss.center.min is None
+        s = s or self.gauss.center.max is None
+        if s:
+            QMessageBox.warning(self, "Error!", "Set the Gaussian center!")
             return None
-        if len(self.le_cent_mm.text()) == 0 and (not self.fix_center.isChecked()):
-            QMessageBox.warning(self, "Error!", "Set the min-max value of the Gaussian center!")
-            return None
-        if self.fix_sigma.isChecked() and len(self.le_sigma) == 0:
-            QMessageBox.warning(self, "Error!", "Set the value of the Gaussian sigma!")
-            return None
-        if self.fix_amp.isChecked() and len(self.le_amp) == 0:
-            QMessageBox.warning(self, "Error!", "Set the value of the Gaussian amplitude!")
-            return None
-        sigma_val = str_to_float(self.le_sigma.text())
-        amplitude_val = str_to_float(self.le_amp.text())
-        if sigma_val is False:
-            QMessageBox.warning(self, "Error!", "Enter a float number for sigma!")
-        if amplitude_val is False:
-            QMessageBox.warning(self, "Error!", "Enter a float number for amplitude!")
-        if (sigma_val is False) or (amplitude_val is False):
-            return
-        self.gauss.center.value = self.line
-        self.gauss.center.min = self.region[0]
-        self.gauss.center.max = self.region[1]
-        self.gauss.center.fixed = self.fix_center.isChecked()
-
-        self.gauss.sigma.fixed = self.fix_sigma.isChecked()
-        self.gauss.sigma.bound = self.bound_sigma.isChecked()
-        self.gauss.sigma.value = sigma_val
-
-        self.gauss.amplitude.fixed = self.fix_sigma.isChecked()
-        self.gauss.amplitude.value = amplitude_val
-
         return copy.deepcopy(self.gauss)
 
 
@@ -177,24 +218,50 @@ class ExponentialControl(QWidget, gui_exponential.Ui_Form):
 
         self.fix_amp.stateChanged.connect(self.slt_fix_amp)
         self.fix_decay.stateChanged.connect(self.slt_fix_decay)
+        self.le_amp.editingFinished.connect(self.slt_new_amplitude)
+        self.le_decay.editingFinished.connect(self.slt_new_decay)
 
     @Slot(int)
     def slt_fix_amp(self, state):
         if state == Qt.Unchecked.value:
-            self.le_amp.clear()
-            self.le_amp.setReadOnly(True)
+            self.exp.amplitude.fixed = False
         elif state == Qt.Checked.value:
-            self.le_amp.clear()
-            self.le_amp.setReadOnly(False)
+            self.exp.amplitude.fixed = True
 
     @Slot(int)
     def slt_fix_decay(self, state):
         if state == Qt.Unchecked.value:
-            self.le_decay.clear()
-            self.le_decay.setReadOnly(True)
+            self.exp.decay.fixed = False
         elif state == Qt.Checked.value:
-            self.le_decay.clear()
-            self.le_decay.setReadOnly(False)
+            self.exp.decay.fixed = True
+
+    @Slot()
+    def slt_new_amplitude(self):
+        n = str_to_float(self.le_amp.text())
+        if n is None:
+            self.exp.amplitude.value = None
+        elif n is False:
+            amp = self.exp.amplitude.value
+            if amp is None:
+                self.le_amp.clear()
+            else:
+                self.le_amp.setText(f"{amp: .2e}")
+        else:
+            self.exp.amplitude.value = n
+
+    @Slot()
+    def slt_new_decay(self):
+        n = str_to_float(self.le_decay.text())
+        if n is None:
+            self.exp.decay.value = None
+        elif n is False:
+            sigma = self.exp.decay.value
+            if sigma is None:
+                self.le_decay.clear()
+            else:
+                self.le_decay.setText(f"{sigma: .2e}")
+        else:
+            self.exp.decay.value = n
 
     def fill_widget(self, func: dms.Exponential):
         self.exp = copy.deepcopy(func)
@@ -217,28 +284,6 @@ class ExponentialControl(QWidget, gui_exponential.Ui_Form):
             self.le_decay.setText(f"{dec_val: .2e}")
 
     def get_params(self):
-        if self.fix_decay.isChecked() and len(self.le_decay) == 0:
-            QMessageBox.warning(self, "Error!", "Set the value of the Exponential decay!")
-            return None
-        if self.fix_amp.isChecked() and len(self.le_amp) == 0:
-            QMessageBox.warning(self, "Error!", "Set the value of the Exponential amplitude!")
-            return None
-
-        amplitude_val = str_to_float(self.le_amp.text())
-        decay_val = str_to_float(self.le_decay.text())
-        if decay_val is False:
-            QMessageBox.warning(self, "Error!", "Enter a float number for decay!")
-        if amplitude_val is False:
-            QMessageBox.warning(self, "Error!", "Enter a float number for amplitude!")
-        if (decay_val is False) or (amplitude_val is False):
-            return
-
-        self.exp.amplitude.fixed = self.fix_amp.checkState() == Qt.Checked.value
-        self.exp.amplitude.value = amplitude_val
-
-        self.exp.decay.fixed = self.fix_decay.checkState() == Qt.Checked.value
-        self.exp.decay.value = decay_val
-
         return copy.deepcopy(self.exp)
 
 

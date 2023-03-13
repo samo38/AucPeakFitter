@@ -18,7 +18,7 @@ import copy
 from gui_main_window import Ui_MainWindow
 import data_models as dms
 from fit_model import FitModel
-
+import lmfit
 
 class UpdateBox(QDialog):
 
@@ -100,14 +100,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.species_id = func_id
         data_model = self.all_data_model[self.scan_id]
         self.frm_plot.plot_data(data_model, func_id)
-        self.frm_ctrl.setup(data_model.next_index, data_model.model[func_id])
+        ts = self._get_turnoff_main(func_id)
+        self.frm_ctrl.setup(data_model.next_index, data_model.model[func_id], turnoff_main=ts)
         self.frm_ctrl.setEnabled(True)
 
     @Slot()
     def slt_new_species(self):
         data_model = self.all_data_model[self.scan_id]
         self.frm_plot.plot_data(data_model)
-        self.frm_ctrl.setup(data_model.next_index)
+        ts = self._get_turnoff_main()
+        self.frm_ctrl.setup(data_model.next_index, turnoff_main=ts)
         self.frm_ctrl.setEnabled(True)
 
     @Slot(dms.DataModel)
@@ -115,6 +117,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         data = self.frm_plot.get_data()
         self.all_data_model[self.scan_id].data = data
         self.all_data_model[self.scan_id].clear_modeled()
+        model = self.all_data_model[self.scan_id].model
+        for i in range(len(model)):
+            func = model[i]
+            if func.type == dms.Types.EXP:
+                func.exp.decay.value = None
+                func.exp.amplitude.value = None
+            elif func.type == dms.Types.GAUSS:
+                func.gauss.amplitude.value = None
+                func.gauss.sigma.value = None
+        self._guess_model()
+        self.all_data_model[self.scan_id].reset_y_models()
         self._reset_list()
 
     @Slot()
@@ -135,6 +148,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         model.append(func)
         self.all_data_model[self.scan_id].set_model(model)
         self.all_data_model[self.scan_id].clear_modeled()
+        self._guess_model()
+        self.all_data_model[self.scan_id].reset_y_models()
         self._reset_list()
 
     @Slot()
@@ -143,6 +158,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         model.remove(model[self.species_id])
         self.all_data_model[self.scan_id].set_model(model)
         self.all_data_model[self.scan_id].clear_modeled()
+        self._guess_model()
+        self.all_data_model[self.scan_id].reset_y_models()
         self._reset_list()
 
     @Slot()
@@ -152,6 +169,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         model[self.species_id] = func
         self.all_data_model[self.scan_id].set_model(model)
         self.all_data_model[self.scan_id].clear_modeled()
+        self._guess_model()
+        self.all_data_model[self.scan_id].reset_y_models()
         self._reset_list()
 
     @Slot()
@@ -196,4 +215,113 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.frm_ctrl.setEnabled(False)
         n = self.frm_list.lw_items.count() - 1
         self.frm_list.lw_items.setCurrentRow(n)
+
+    def _get_turnoff_main(self, func_id=None):
+        data_model = self.all_data_model[self.scan_id]
+        has_main = False
+        for i in range(len(data_model.model)):
+            func = data_model.model[i]
+            if func.type == dms.Types.GAUSS:
+                if func.gauss.main:
+                    has_main = True
+                    break
+        is_main = False
+        if func_id is not None:
+            func = data_model.model[func_id]
+            if func.type == dms.Types.GAUSS:
+                if func.gauss.main:
+                    is_main = True
+        if has_main:
+            if is_main:
+                return False
+            else:
+                return True
+        else:
+            return False
+
+    def _guess_model(self):
+        sigma_factor = 10
+        data_model = self.all_data_model[self.scan_id]
+        x = data_model.data.x_trim
+        dx = np.mean(np.diff(x))
+        y = data_model.data.y_trim
+        ym = np.zeros(len(y))
+        buffer = None
+        # func = dms.Function()
+        for i in range(len(data_model.model)):
+            func = data_model.model[i]
+            if func.type == dms.Types.EXP and func.visible:
+                if func.exp.amplitude.value is None or func.exp.decay.value is None:
+                    exp = lmfit.models.ExponentialModel(prefix='exp_')
+                    params = exp.guess(y, x=x)
+                    func.exp.decay.value = params.get('exp_decay').value
+                    func.exp.amplitude.value = params.get('exp_amplitude').value
+                buffer = copy.deepcopy(func)
+                break
+
+        if buffer is not None:
+            # buffer = dms.Function()
+            amp = buffer.exp.amplitude.value
+            dec = buffer.exp.decay.value
+            ym += dms.Exponential.get_fx(x, amp, dec)
+
+        y_r = y - ym
+
+        # find main peak
+        main_peak = None
+        for i in range(len(data_model.model)):
+            func = data_model.model[i]
+            # func = dms.Function()
+            if func.type == dms.Types.GAUSS and func.visible and func.gauss.main:
+                cent = func.gauss.center.value
+                amp = func.gauss.amplitude.value
+                sig = func.gauss.sigma.value
+                if amp is None or sig is None:
+                    y_cent = y_r[np.argmin(np.abs(x - cent))]
+                    sig = dx * sigma_factor
+                    amp = y_cent * sig * np.sqrt(2 * np.pi)
+                    func.gauss.sigma.value = sig
+                    func.gauss.amplitude.value = amp
+                # ym += dms.Gaussian.get_fx(x, amplitude=amp, sigma=sig, center=cent)
+                # y_r = y - ym
+                main_peak = copy.deepcopy(func)
+                break
+        # check bound and main peaks
+        for i in range(len(data_model.model)):
+            func = data_model.model[i]
+            # func = dms.Function()
+            if func.type == dms.Types.GAUSS and func.visible and not func.gauss.main:
+                bound = func.gauss.sigma.bound
+                if bound and main_peak is None:
+                    QMessageBox.warning(self, "warning", "Set a species as the main one!")
+                    return
+
+        # guess other peaks
+        for i in range(len(data_model.model)):
+            func = data_model.model[i]
+            # func = dms.Function()
+            if func.type == dms.Types.GAUSS and func.visible and not func.gauss.main:
+                cent = func.gauss.center.value
+                amp = func.gauss.amplitude.value
+                sig = func.gauss.sigma.value
+                bound = func.gauss.sigma.bound
+                if bound:
+                    sig_main = main_peak.gauss.sigma.value
+                    if amp is None or sig is None or sig != sig_main:
+                        sig = sig_main
+                        func.gauss.sigma.value = sig
+                        if amp is None:
+                            y_cent = y_r[np.argmin(np.abs(x - cent))]
+                            amp = y_cent * sig * np.sqrt(2 * np.pi)
+                            func.gauss.amplitude.value = amp
+                else:
+                    if amp is None or sig is None:
+                        y_cent = y_r[np.argmin(np.abs(x - cent))]
+                        sig = dx * sigma_factor
+                        amp = y_cent * sig * np.sqrt(2 * np.pi)
+                        func.gauss.sigma.value = sig
+                        func.gauss.amplitude.value = amp
+                # ym += dms.Gaussian.get_fx(x, amplitude=amp, sigma=sig, center=cent)
+                # y_r = y - ym
+
 
