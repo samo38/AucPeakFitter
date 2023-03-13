@@ -100,7 +100,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.species_id = func_id
         data_model = self.all_data_model[self.scan_id]
         self.frm_plot.plot_data(data_model, func_id)
-        ts = self._get_turnoff_main(func_id)
+        ts = self.get_turnoff_main(func_id)
         self.frm_ctrl.setup(data_model.next_index, data_model.model[func_id], turnoff_main=ts)
         self.frm_ctrl.setEnabled(True)
 
@@ -108,7 +108,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def slt_new_species(self):
         data_model = self.all_data_model[self.scan_id]
         self.frm_plot.plot_data(data_model)
-        ts = self._get_turnoff_main()
+        ts = self.get_turnoff_main()
         self.frm_ctrl.setup(data_model.next_index, turnoff_main=ts)
         self.frm_ctrl.setEnabled(True)
 
@@ -126,9 +126,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             elif func.type == dms.Types.GAUSS:
                 func.gauss.amplitude.value = None
                 func.gauss.sigma.value = None
-        self._guess_model()
-        self.all_data_model[self.scan_id].reset_y_models()
-        self._reset_list()
+        s = self.guess_model()
+        if s:
+            self.all_data_model[self.scan_id].reset_y_models()
+        self.reset_list()
 
     @Slot()
     def sig_line_region_picked(self):
@@ -148,9 +149,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         model.append(func)
         self.all_data_model[self.scan_id].set_model(model)
         self.all_data_model[self.scan_id].clear_modeled()
-        self._guess_model()
-        self.all_data_model[self.scan_id].reset_y_models()
-        self._reset_list()
+        s = self.guess_model()
+        if s:
+            self.all_data_model[self.scan_id].reset_y_models()
+        self.reset_list()
 
     @Slot()
     def slt_delete_species(self):
@@ -158,9 +160,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         model.remove(model[self.species_id])
         self.all_data_model[self.scan_id].set_model(model)
         self.all_data_model[self.scan_id].clear_modeled()
-        self._guess_model()
-        self.all_data_model[self.scan_id].reset_y_models()
-        self._reset_list()
+        s = self.guess_model()
+        if s:
+            self.all_data_model[self.scan_id].reset_y_models()
+        self.reset_list()
 
     @Slot()
     def slt_update_species(self):
@@ -169,9 +172,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         model[self.species_id] = func
         self.all_data_model[self.scan_id].set_model(model)
         self.all_data_model[self.scan_id].clear_modeled()
-        self._guess_model()
-        self.all_data_model[self.scan_id].reset_y_models()
-        self._reset_list()
+        s = self.guess_model()
+        if s:
+            self.all_data_model[self.scan_id].reset_y_models()
+        self.reset_list()
 
     @Slot()
     def slt_run(self):
@@ -181,7 +185,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         dm = fm.get_data_model()
         self.setCursor(Qt.ArrowCursor)
         self.all_data_model[self.scan_id] = dm
-        self._reset_list()
+        self.reset_list()
         self.frm_list.lw_items.setCurrentRow(0)
 
     @Slot()
@@ -210,13 +214,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.frm_plot.pb_set_region.setEnabled(state)
         self.frm_open.setEnabled(state)
 
-    def _reset_list(self):
+    def reset_list(self):
         self.frm_list.set_items(self.all_data_model[self.scan_id].name_list)
         self.frm_ctrl.setEnabled(False)
         n = self.frm_list.lw_items.count() - 1
         self.frm_list.lw_items.setCurrentRow(n)
 
-    def _get_turnoff_main(self, func_id=None):
+    def get_turnoff_main(self, func_id=None):
         data_model = self.all_data_model[self.scan_id]
         has_main = False
         for i in range(len(data_model.model)):
@@ -239,7 +243,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             return False
 
-    def _guess_model(self):
+    def guess_model(self):
         sigma_factor = 10
         data_model = self.all_data_model[self.scan_id]
         x = data_model.data.x_trim
@@ -294,7 +298,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 bound = func.gauss.sigma.bound
                 if bound and main_peak is None:
                     QMessageBox.warning(self, "warning", "Set a species as the main one!")
-                    return
+                    return False
 
         # guess other peaks
         for i in range(len(data_model.model)):
@@ -323,5 +327,4 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         func.gauss.amplitude.value = amp
                 # ym += dms.Gaussian.get_fx(x, amplitude=amp, sigma=sig, center=cent)
                 # y_r = y - ym
-
-
+        return True
