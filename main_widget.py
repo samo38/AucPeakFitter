@@ -417,27 +417,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             m_l = dms.N_POINTS
             n = 0
             m = 0
-            min_th = 1e-8
             while True:
                 if n >= n_l and m >= m_l:
                     break
                 if n < n_l:
                     x = data_model.data.x_trim[n]
                     y = data_model.data.y_trim[n]
-                    y = y if y > min_th else 0
                     ym = data_model.data.y_model[n]
-                    ym = ym if ym > min_th else 0
                     r = data_model.data.residual[n]
-                    r = r if r > min_th else 0
                     n += 1
-                    line = f"{x: .3f},{y: .6e},{ym: .6e},{r: .6e}"
+                    line = f"{x: .10f},{y: .10f},{ym: .10f},{r: .10f}"
                 else:
                     line = " , , , "
                 for i in range(len(xm_arr)):
                     x = xm_arr[i][m]
                     y = ym_arr[i][m]
-                    y = y if y > min_th else 0
-                    line += f",{x: .3f},{y: .6e}"
+                    line += f",{x: .10f},{y: .10f}"
                 m += 1
                 fid.write(line + "\n")
 
