@@ -66,7 +66,7 @@ class PlotWidget(QFrame):
         self.curve_trim = self.plt_species.plot(pen=pen)
         self.curve_raw = self.plt_model.plot(pen=pen)
 
-        pen = pyqtgraph.mkPen(color='w', width=2)
+        pen = pyqtgraph.mkPen(color='w', width=3)
         self.region_picker_import = pyqtgraph.LinearRegionItem(pen=pen)
         self.line_picker_trim = pyqtgraph.InfiniteLine(pen=pen, movable=True)
         pen.setStyle(Qt.DotLine)
