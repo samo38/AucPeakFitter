@@ -472,6 +472,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def guess_model(self):
         sigma_factor = 10
+        buffer_factor = 0.5
         data_model = self.all_data_model[self.scan_id]
         x = data_model.data.x_trim
         dx = np.mean(np.diff(x))
@@ -496,7 +497,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             dec = buffer.exp.decay.value
             ym += dms.Exponential.get_fx(x, amp, dec)
 
-        y_r = y - ym
+        y_r = y - ym * buffer_factor
 
         # find main peak
         main_peak = None
