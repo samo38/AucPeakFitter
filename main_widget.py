@@ -1,24 +1,16 @@
-import subprocess
-
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect, QDir,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel, QComboBox, QLineEdit,
-    QListWidget, QListWidgetItem, QPushButton, QSizePolicy, QFileDialog, QMessageBox,
-    QSpinBox, QVBoxLayout, QGridLayout, QWidget, QMainWindow, QTextEdit, QDialog, QStyle)
+from PySide6.QtCore import (QDir, Qt)
+from PySide6.QtWidgets import (QHBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton, QFileDialog,
+                               QMessageBox, QVBoxLayout, QMainWindow, QTextEdit, QDialog, QStyle)
 from PySide6.QtCore import (Slot, Signal)
+from gui_main_window import Ui_MainWindow
+from fit_model import FitModel
+import data_models as dms
+import copy
+import numpy as np
+import lmfit
+import subprocess
 import os
 import sys
-import numpy as np
-import copy
-from gui_main_window import Ui_MainWindow
-import data_models as dms
-from fit_model import FitModel
-import lmfit
 
 
 def trapezoid(x, y, alpha):

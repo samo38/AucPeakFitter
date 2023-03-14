@@ -1,4 +1,4 @@
-from PySide6 import QtWidgets
+from PySide6.QtWidgets import QApplication
 from main_widget import MainWindow
 import setup_tools as st
 import sys
@@ -19,7 +19,7 @@ if __name__ == "__main__":
     if args.mk_desk:
         st.mk_desktop(app_path)
 
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     win = MainWindow()
     win.show()
     sys.exit(app.exec())
